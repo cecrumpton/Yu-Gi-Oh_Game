@@ -36,11 +36,22 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="{Binding PlayerLifePoints}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Label Grid.Column="1" Content="Draw" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label Grid.Column="1" Content="Draw Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Label.Style>
                     <Style TargetType="Label">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsDrawPhase}" Value="True">
+                                <Setter Property="Background" Value="Pink"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+            <Label Grid.Column="2" Content="Standby Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Label.Style>
+                    <Style TargetType="Label">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsStandbyPhase}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -63,6 +74,17 @@
                     <Style TargetType="Label">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsBattlePhase}" Value="True">
+                                <Setter Property="Background" Value="Pink"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+            <Label Grid.Column="5" Content="MainPhase 2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Label.Style>
+                    <Style TargetType="Label">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMainPhase2}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -142,7 +164,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <Button Grid.Column="2" Background="Pink" FontSize="20" Content="Draw" Command="{Binding DrawCard}"/>
+            <Button Grid.Column="2" Background="Pink" FontSize="20" Content="{Binding AdvancePhaseText}" Command="{Binding AdvancePhase}"/>
         </Grid>
         
         <!--#endregion-->

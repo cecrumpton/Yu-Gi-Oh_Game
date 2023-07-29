@@ -18,9 +18,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private int _playerLifePoints;
         private int _opponentLifePoints;
         private bool _isDrawPhase;
+        private bool _isStandbyPhase;
         private bool _isMainPhase1;
         private bool _isBattlePhase;
+        private bool _isMainPhase2;
         private bool _isEndPhase;
+        private string _advancePhaseText;
         private readonly int[] _deckOrder;
         private static readonly Random _random = new Random();
         private int _cardsLeft;
@@ -45,14 +48,15 @@ namespace Yu_Gi_Oh_Game.ViewModel
             PlayerLifePoints = OpponentLifePoints = 8000;
             IsDrawPhase = true;
             PlayedCards = new ObservableCollection<CardModel>();
-            DrawCard = new RelayCommand(DrawACard, CheckDrawPhase);
-            PlayCard = new RelayCommand(PlayACard, CheckMainPhase1);
+            AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
+            PlayCard = new RelayCommand(PlayACard, CheckMainPhase);
             Attack = new RelayCommand(AttackOpponent, CheckBattlePhase);
+            AdvancePhaseText = "Draw";
         }
 
         #region Properties
 
-        public ICommand DrawCard { get; }
+        public ICommand AdvancePhase { get; }
         public ICommand PlayCard { get; }
         public ICommand Attack { get; }
 
@@ -106,10 +110,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public bool IsDrawPhase
         {
-            get
-            {
-                return _isDrawPhase;
-            }
+            get => _isDrawPhase;
             set
             {
                 _isDrawPhase = value;
@@ -117,12 +118,19 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
+        public bool IsStandbyPhase
+        {
+            get => _isStandbyPhase;
+            set
+            {
+                _isStandbyPhase = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsMainPhase1
         {
-            get
-            {
-                return _isMainPhase1;
-            }
+            get => _isMainPhase1;
             set
             {
                 _isMainPhase1 = value;
@@ -132,10 +140,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public bool IsBattlePhase
         {
-            get
-            {
-                return _isBattlePhase;
-            }
+            get => _isBattlePhase;
             set
             {
                 _isBattlePhase = value;
@@ -143,15 +148,32 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
+        public bool IsMainPhase2
+        {
+            get => _isMainPhase2;
+            set
+            {
+                _isMainPhase2 = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsEndPhase
         {
-            get
-            {
-                return _isEndPhase;
-            }
+            get => _isEndPhase;
             set
             {
                 _isEndPhase = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string AdvancePhaseText
+        {
+            get => _advancePhaseText;
+            set
+            {
+                _advancePhaseText = value;
                 OnPropertyChanged();
             }
         }
@@ -176,14 +198,14 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private bool CheckDrawPhase(object parameter)
+        private bool CheckIfPlayerTurn(object parameter)
         {
-            return IsDrawPhase;
+            return true;
         }
 
-        private bool CheckMainPhase1(object parameter)
+        private bool CheckMainPhase(object parameter)
         {
-            return IsMainPhase1;
+            return IsMainPhase1 || IsMainPhase2;
         }
 
         private bool CheckBattlePhase(object parameter)
@@ -191,16 +213,46 @@ namespace Yu_Gi_Oh_Game.ViewModel
             return IsBattlePhase;
         }
 
-        private void DrawACard(object parameter)
+        private async void AdvanceTurnPhase(object parameter)
         {
-            if (_cardsLeft == 0) return;
-            Hand.Add(Deck[_deckOrder[_cardsLeft]]);
-            OnPropertyChanged(nameof(Hand));
-            _cardsLeft--;
-            IsDrawPhase = false;
-            if(PlayedCards.Count >= 5)
+            //too much going on here, break down in to smaller methods
+            if (IsDrawPhase)
+            {
+                if (_cardsLeft == 0) return;
+                Hand.Add(Deck[_deckOrder[_cardsLeft]]);
+                OnPropertyChanged(nameof(Hand));
+                _cardsLeft--;
+                IsDrawPhase = false;
+                IsStandbyPhase = true;
+                await Task.Delay(2000);
+                IsStandbyPhase = false;
+                //if (PlayedCards.Count >= 5)
+                //    IsBattlePhase = true;
+                IsMainPhase1 = true;
+                AdvancePhaseText = "Start Battle Phase";
+                return;
+            }
+            if (IsMainPhase1)
+            {
+                IsMainPhase1 = false;
                 IsBattlePhase = true;
-            IsMainPhase1 = true;
+                AdvancePhaseText = "Start Main Phase 2";
+                return;
+            }
+            if (IsBattlePhase)
+            {
+                IsBattlePhase = false;
+                IsMainPhase2 = true;
+                AdvancePhaseText = "EndTurn";
+                return;
+            }
+            if (IsMainPhase2)
+            {
+                IsMainPhase2 = false;
+                IsEndPhase = true;
+                AdvancePhaseText = "Opponent's Turn";
+                return;
+            }
         }
 
         private void PlayACard(object parameter)
@@ -211,8 +263,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
             OnPropertyChanged(nameof(PlayedCards));
             Hand.Remove(card);
             OnPropertyChanged(nameof(Hand));
-            IsMainPhase1 = false;
-            IsBattlePhase = true;
+            //IsMainPhase1 = false;
+            //IsBattlePhase = true;
         }
 
         private void AttackOpponent(object parameter)
@@ -220,8 +272,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
             if (parameter is CardModel == false) return;
             CardModel card = (CardModel)parameter;
             OpponentLifePoints = OpponentLifePoints - card.Attack;
-            IsBattlePhase = false;
-            IsEndPhase = true;
+            //IsBattlePhase = false;
+            //IsEndPhase = true;
         }
 
         #endregion

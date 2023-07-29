@@ -24,11 +24,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private bool _isMainPhase2;
         private bool _isEndPhase;
         private string _advancePhaseText;
+        private bool _canNormalSummonMonster;
         private readonly int[] _deckOrder;
         private static readonly Random _random = new Random();
         private int _cardsLeft;
-        ObservableCollection<CardModel> _hand = new ObservableCollection<CardModel>();
-        ObservableCollection<CardModel> _playedCards = new ObservableCollection<CardModel>();
+        ObservableCollection<ICard> _hand = new ObservableCollection<ICard>();
+        ObservableCollection<ICard> _playedCards = new ObservableCollection<ICard>();
 
         public DuelMatViewModel()
         {
@@ -36,7 +37,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             Deck = model.Cards;
             _deckOrder = new int[Deck.Count];
             ShuffleDeck(_deckOrder);
-            Hand = new ObservableCollection<CardModel>
+            Hand = new ObservableCollection<ICard>
             {
                 Deck[_deckOrder[0]],
                 Deck[_deckOrder[1]],
@@ -47,7 +48,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             _cardsLeft = _deckOrder.Length - Hand.Count;
             PlayerLifePoints = OpponentLifePoints = 8000;
             IsDrawPhase = true;
-            PlayedCards = new ObservableCollection<CardModel>();
+            PlayedCards = new ObservableCollection<ICard>();
             AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
             PlayCard = new RelayCommand(PlayACard, CheckMainPhase);
             Attack = new RelayCommand(AttackOpponent, CheckBattlePhase);
@@ -82,7 +83,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public List<CardModel> Deck { get; }
 
-        public ObservableCollection<CardModel> Hand
+        public ObservableCollection<ICard> Hand
         {
             get
             {
@@ -95,7 +96,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        public ObservableCollection<CardModel> PlayedCards
+        public ObservableCollection<ICard> PlayedCards
         {
             get
             {
@@ -178,6 +179,15 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
+        public bool CanNormalSummonMonster
+        {
+            get => _canNormalSummonMonster;
+            set
+            {
+                _canNormalSummonMonster = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #region PrivateMethods
@@ -226,10 +236,9 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 IsStandbyPhase = true;
                 await Task.Delay(2000);
                 IsStandbyPhase = false;
-                //if (PlayedCards.Count >= 5)
-                //    IsBattlePhase = true;
                 IsMainPhase1 = true;
                 AdvancePhaseText = "Start Battle Phase";
+                CanNormalSummonMonster = true;
                 return;
             }
             if (IsMainPhase1)
@@ -257,23 +266,28 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private void PlayACard(object parameter)
         {
-            if (parameter is CardModel == false) return;
-            CardModel card = (CardModel)parameter;
-            PlayedCards.Add(card);
-            OnPropertyChanged(nameof(PlayedCards));
-            Hand.Remove(card);
-            OnPropertyChanged(nameof(Hand));
-            //IsMainPhase1 = false;
-            //IsBattlePhase = true;
+            if (parameter is ICard == false) return;
+            ICard card = (ICard)parameter;
+            if (card.YuGiOhCardType == CardType.Monster && PlayedCards.Count < 5)
+            {
+                if (CanNormalSummonMonster == false) return;
+                PlayedCards.Add(card);
+                OnPropertyChanged(nameof(PlayedCards));
+                Hand.Remove(card);
+                OnPropertyChanged(nameof(Hand));
+                CanNormalSummonMonster = false;
+            }
         }
 
         private void AttackOpponent(object parameter)
         {
-            if (parameter is CardModel == false) return;
-            CardModel card = (CardModel)parameter;
-            OpponentLifePoints = OpponentLifePoints - card.Attack;
-            //IsBattlePhase = false;
-            //IsEndPhase = true;
+            if (parameter is ICard == false) return;
+            CardModel card = (CardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
+            if (card.CanAttack)
+            {
+                OpponentLifePoints = OpponentLifePoints - card.Attack;
+                card.CanAttack = false;
+            }
         }
 
         #endregion

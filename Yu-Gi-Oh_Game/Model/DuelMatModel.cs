@@ -19,25 +19,25 @@ namespace Yu_Gi_Oh_Game.Model
 
         private void CreateCards()
         {
-            CardModel LusterDragon = new CardModel("Luster Dragon", 1900, 1600);
+            CardModel LusterDragon = new CardModel(CardType.Monster, "Luster Dragon", 1900, 1600);
 
-            CardModel GeminiElf = new CardModel("Gemini Elf", 1900, 900);
+            CardModel GeminiElf = new CardModel(CardType.Monster, "Gemini Elf", 1900, 900);
 
-            CardModel VorseRaider = new CardModel("Vorse Raider", 1900, 1200);
+            CardModel VorseRaider = new CardModel(CardType.Monster, "Vorse Raider", 1900, 1200);
 
-            CardModel DarkMagician = new CardModel("Dark Magician", 2500, 2100);
+            CardModel DarkMagician = new CardModel(CardType.Monster, "Dark Magician", 2500, 2100);
 
-            CardModel RedEyesBlackDragon = new CardModel("Red Eyes Black Dragon", 2400, 2000);
+            CardModel RedEyesBlackDragon = new CardModel(CardType.Monster, "Red Eyes Black Dragon", 2400, 2000);
 
-            CardModel BlueEyesWhiteDragon = new CardModel("Blue Eyes White Dragon", 3000, 2500);
+            CardModel BlueEyesWhiteDragon = new CardModel(CardType.Monster, "Blue Eyes White Dragon", 3000, 2500);
 
-            CardModel SliferTheSkyDragon = new CardModel("Slifer The Sky Dragon", 3500, 3500);
+            CardModel SliferTheSkyDragon = new CardModel(CardType.Monster, "Slifer The Sky Dragon", 3500, 3500);
 
-            CardModel ObeliskTheTormentor = new CardModel("Obelisk The Tormentor", 4000, 4000);
+            CardModel ObeliskTheTormentor = new CardModel(CardType.Monster, "Obelisk The Tormentor", 4000, 4000);
 
-            CardModel TheWingedDragonOfRa = new CardModel("The Winged Dragon Of Ra", 5000, 5000);
+            CardModel TheWingedDragonOfRa = new CardModel(CardType.Monster, "The Winged Dragon Of Ra", 5000, 5000);
 
-            CardModel DarkMagicianGirl = new CardModel("Dark Magician Girl", 2000, 1700);
+            CardModel DarkMagicianGirl = new CardModel(CardType.Monster, "Dark Magician Girl", 2000, 1700);
 
             Cards.Add(LusterDragon);
             Cards.Add(GeminiElf);

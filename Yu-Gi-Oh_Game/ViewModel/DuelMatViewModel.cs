@@ -252,7 +252,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             {
                 IsBattlePhase = false;
                 IsMainPhase2 = true;
-                AdvancePhaseText = "EndTurn";
+                AdvancePhaseText = "End Turn";
                 return;
             }
             if (IsMainPhase2)
@@ -260,6 +260,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 IsMainPhase2 = false;
                 IsEndPhase = true;
                 AdvancePhaseText = "Opponent's Turn";
+                CanNormalSummonMonster = true;
                 return;
             }
         }

@@ -110,7 +110,7 @@
         <!--#region Player Monsters-->
 
         <Grid Grid.Row="4" Background="Green">
-            <ItemsControl ItemsSource="{Binding PlayedCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <ItemsControl ItemsSource="{Binding PlayedMonsterCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
@@ -133,18 +133,37 @@
         <!--#endregion-->
         
         <!--#region Player Magic/Traps-->
-        
-        <Grid Grid.Row="5" Background="Blue"/>
-        
+
+        <Grid Grid.Row="5" Background="Blue">
+            <ItemsControl ItemsSource="{Binding PlayedMagicAndTrapCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Margin="5,0" Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                                <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                                <TextBlock Text="{Binding Defense}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+
         <!--#endregion-->
         
         <!--#region Hand-->
         
         <Grid Grid.Row="6" Background="Purple">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="6*"/>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
             <ItemsControl Grid.Column="1" ItemsSource="{Binding Hand}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
@@ -164,7 +183,9 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <Button Grid.Column="2" Background="Pink" FontSize="20" Content="{Binding AdvancePhaseText}" Command="{Binding AdvancePhase}"/>
+            <Button Grid.Column="2" Background="Pink" Command="{Binding AdvancePhase}">
+                <TextBlock Text="{Binding AdvancePhaseText}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
+            </Button>
         </Grid>
         
         <!--#endregion-->

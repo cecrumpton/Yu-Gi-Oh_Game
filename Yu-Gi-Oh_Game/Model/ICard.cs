@@ -9,5 +9,6 @@ namespace Yu_Gi_Oh_Game.Model
     public interface ICard
     {
         CardType YuGiOhCardType { get; }
+        string Name { get; }
     }
 }

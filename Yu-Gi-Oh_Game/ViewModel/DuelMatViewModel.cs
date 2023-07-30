@@ -25,30 +25,21 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private bool _isEndPhase;
         private string _advancePhaseText;
         private bool _canNormalSummonMonster;
-        private readonly int[] _deckOrder;
         private static readonly Random _random = new Random();
-        private int _cardsLeft;
-        ObservableCollection<ICard> _hand = new ObservableCollection<ICard>();
-        ObservableCollection<ICard> _playedCards = new ObservableCollection<ICard>();
 
         public DuelMatViewModel()
         {
             DuelMatModel model = new DuelMatModel();
             Deck = model.Cards;
-            _deckOrder = new int[Deck.Count];
-            ShuffleDeck(_deckOrder);
-            Hand = new ObservableCollection<ICard>
-            {
-                Deck[_deckOrder[0]],
-                Deck[_deckOrder[1]],
-                Deck[_deckOrder[2]],
-                Deck[_deckOrder[3]],
-                Deck[_deckOrder[4]],
-            };
-            _cardsLeft = _deckOrder.Length - Hand.Count;
+            DeckOrder = new int[Deck.Count];
+            ShuffleDeck(DeckOrder);
+            CardsLeft = DeckOrder.Length -1;
+            Hand = new ObservableCollection<ICard>();
+            DrawCards(5);
             PlayerLifePoints = OpponentLifePoints = 8000;
             IsDrawPhase = true;
-            PlayedCards = new ObservableCollection<ICard>();
+            PlayedMonsterCards = new ObservableCollection<ICard>();
+            PlayedMagicAndTrapCards = new ObservableCollection<ICard>();
             AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
             PlayCard = new RelayCommand(PlayACard, CheckMainPhase);
             Attack = new RelayCommand(AttackOpponent, CheckBattlePhase);
@@ -81,33 +72,13 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        public List<CardModel> Deck { get; }
+        public List<ICard> Deck { get; }
 
-        public ObservableCollection<ICard> Hand
-        {
-            get
-            {
-                return _hand;
-            }
-            set
-            {
-                _hand = value;
-                OnPropertyChanged();
-            }
-        }
+        public ObservableCollection<ICard> Hand { get; }
 
-        public ObservableCollection<ICard> PlayedCards
-        {
-            get
-            {
-                return _playedCards;
-            }
-            set
-            {
-                _playedCards = value;
-                OnPropertyChanged();
-            }
-        }
+        public ObservableCollection<ICard> PlayedMonsterCards { get; }
+
+        public ObservableCollection<ICard> PlayedMagicAndTrapCards { get; }
 
         public bool IsDrawPhase
         {
@@ -188,6 +159,22 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public int[] DeckOrder { get; }
+        public int CardsLeft { get; set; }
+        #endregion
+
+        #region PublicMethods
+        //maybe this can be made private since it generally shouldn't be accessible other than for pot of greed?
+        public void DrawCards(int numberOfCards)
+        {
+            for (int i = 0; i < numberOfCards; i++)
+            {
+                if (CardsLeft < 0) return;
+                Hand.Add(Deck[DeckOrder[CardsLeft]]);
+                CardsLeft--;
+            }
+        }
         #endregion
 
         #region PrivateMethods
@@ -228,10 +215,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
             //too much going on here, break down in to smaller methods
             if (IsDrawPhase)
             {
-                if (_cardsLeft == 0) return;
-                Hand.Add(Deck[_deckOrder[_cardsLeft]]);
-                OnPropertyChanged(nameof(Hand));
-                _cardsLeft--;
+                if (CardsLeft < 0) return; //at some point make this to where the player loses the game
+                DrawCards(1);
                 IsDrawPhase = false;
                 IsStandbyPhase = true;
                 await Task.Delay(2000);
@@ -265,25 +250,34 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private void PlayACard(object parameter)
+        //when implementing chains I can remove the await and async out of this method.
+        private async void PlayACard(object parameter)
         {
             if (parameter is ICard == false) return;
             ICard card = (ICard)parameter;
-            if (card.YuGiOhCardType == CardType.Monster && PlayedCards.Count < 5)
+            if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count < 5)
             {
                 if (CanNormalSummonMonster == false) return;
-                PlayedCards.Add(card);
-                OnPropertyChanged(nameof(PlayedCards));
+                PlayedMonsterCards.Add(card);
                 Hand.Remove(card);
-                OnPropertyChanged(nameof(Hand));
                 CanNormalSummonMonster = false;
+            }
+            if(card.YuGiOhCardType == CardType.Magic)
+            {
+                MagicCardModel magicCard = (MagicCardModel) card;
+                Hand.Remove(magicCard);
+                PlayedMagicAndTrapCards.Add(magicCard);
+                await Task.Delay(2000);
+                magicCard.ResolveEffect(this);
+                if(magicCard.IsContinuous == false)
+                    PlayedMagicAndTrapCards.Remove(magicCard);
             }
         }
 
         private void AttackOpponent(object parameter)
         {
-            if (parameter is ICard == false) return;
-            CardModel card = (CardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
+            if (parameter is MonsterCardModel == false) return;
+            MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
             if (card.CanAttack)
             {
                 OpponentLifePoints = OpponentLifePoints - card.Attack;
@@ -297,7 +291,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        //this may need to have a method that updates all properties in case I need to call it.
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) 
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

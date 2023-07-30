@@ -5,39 +5,42 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Automation.Peers;
+using Yu_Gi_Oh_Game.Model.MagicCards;
 
 namespace Yu_Gi_Oh_Game.Model
 {
     public class DuelMatModel
     {
-        public List<CardModel> Cards { get; }
+        public List<ICard> Cards { get; }
         public DuelMatModel()
         {
-            Cards = new List<CardModel>();
+            Cards = new List<ICard>();
             CreateCards();
         }
 
         private void CreateCards()
         {
-            CardModel LusterDragon = new CardModel(CardType.Monster, "Luster Dragon", 1900, 1600);
+            MonsterCardModel LusterDragon = new MonsterCardModel("Luster Dragon", 1900, 1600);
 
-            CardModel GeminiElf = new CardModel(CardType.Monster, "Gemini Elf", 1900, 900);
+            MonsterCardModel GeminiElf = new MonsterCardModel("Gemini Elf", 1900, 900);
 
-            CardModel VorseRaider = new CardModel(CardType.Monster, "Vorse Raider", 1900, 1200);
+            MonsterCardModel VorseRaider = new MonsterCardModel("Vorse Raider", 1900, 1200);
 
-            CardModel DarkMagician = new CardModel(CardType.Monster, "Dark Magician", 2500, 2100);
+            MonsterCardModel DarkMagician = new MonsterCardModel("Dark Magician", 2500, 2100);
 
-            CardModel RedEyesBlackDragon = new CardModel(CardType.Monster, "Red Eyes Black Dragon", 2400, 2000);
+            MonsterCardModel RedEyesBlackDragon = new MonsterCardModel("Red Eyes Black Dragon", 2400, 2000);
 
-            CardModel BlueEyesWhiteDragon = new CardModel(CardType.Monster, "Blue Eyes White Dragon", 3000, 2500);
+            MonsterCardModel BlueEyesWhiteDragon = new MonsterCardModel("Blue Eyes White Dragon", 3000, 2500);
 
-            CardModel SliferTheSkyDragon = new CardModel(CardType.Monster, "Slifer The Sky Dragon", 3500, 3500);
+            MonsterCardModel SliferTheSkyDragon = new MonsterCardModel("Slifer The Sky Dragon", 3500, 3500);
 
-            CardModel ObeliskTheTormentor = new CardModel(CardType.Monster, "Obelisk The Tormentor", 4000, 4000);
+            //MonsterCardModel ObeliskTheTormentor = new MonsterCardModel("Obelisk The Tormentor", 4000, 4000);
 
-            CardModel TheWingedDragonOfRa = new CardModel(CardType.Monster, "The Winged Dragon Of Ra", 5000, 5000);
+            //MonsterCardModel TheWingedDragonOfRa = new MonsterCardModel("The Winged Dragon Of Ra", 5000, 5000);
 
-            CardModel DarkMagicianGirl = new CardModel(CardType.Monster, "Dark Magician Girl", 2000, 1700);
+            //MonsterCardModel DarkMagicianGirl = new MonsterCardModel("Dark Magician Girl", 2000, 1700);
+
+            MagicCardModel PotOfGreed = new PotOfGreed();
 
             Cards.Add(LusterDragon);
             Cards.Add(GeminiElf);
@@ -46,10 +49,10 @@ namespace Yu_Gi_Oh_Game.Model
             Cards.Add(RedEyesBlackDragon);
             Cards.Add(BlueEyesWhiteDragon);
             Cards.Add(SliferTheSkyDragon);
-            Cards.Add(ObeliskTheTormentor);
-            Cards.Add(TheWingedDragonOfRa);
-            Cards.Add(DarkMagicianGirl);
-
+            //Cards.Add(ObeliskTheTormentor);
+            //Cards.Add(TheWingedDragonOfRa);
+            //Cards.Add(DarkMagicianGirl);
+            Cards.Add(PotOfGreed);
         }
     }
 }

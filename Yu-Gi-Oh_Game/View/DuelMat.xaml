@@ -18,10 +18,63 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="Red"/>
-        <Grid Grid.Row="1" Background="Orange"/>
-        <Grid Grid.Row="2" Background="Yellow"/>
         
+        <!--#region Opponent Hand-->
+        
+        <Grid Grid.Row="0" Background="Red">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding OpponentHand}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!--<Button Margin="5,0" Command="{Binding DataContext.PlayCard, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">-->
+                            <StackPanel Margin="5,0" Orientation="Vertical">
+                                <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                                <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                                <TextBlock Text="{Binding Defense}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                            </StackPanel>
+                        <!--</Button>-->
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!--<Button Grid.Column="2" Background="Pink" Command="{Binding AdvancePhase}">
+                <TextBlock Text="{Binding AdvancePhaseText}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
+            </Button>-->
+        </Grid>
+        
+        <!--#endregion-->
+
+        <Grid Grid.Row="1" Background="Orange"/>
+        
+        <Grid Grid.Row="2" Background="Yellow">
+            <ItemsControl ItemsSource="{Binding OpponentMonsterCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!--<Button Margin="5,0" Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">-->
+                            <StackPanel Margin="5,0" Orientation="Vertical">
+                                <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                                <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                                <TextBlock Text="{Binding Defense}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
+                            </StackPanel>
+                        <!--</Button>-->
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+
         <!--#region Duel Phases-->
         
         <Grid Grid.Row="3" Background="Lime">
@@ -43,6 +96,9 @@
                             <DataTrigger Binding="{Binding IsDrawPhase}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding OpponentDrawPhase}" Value="True">
+                                <Setter Property="Background" Value="Purple"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Label.Style>
@@ -53,6 +109,9 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsStandbyPhase}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding OpponentStandbyPhase}" Value="True">
+                                <Setter Property="Background" Value="Purple"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -65,6 +124,9 @@
                             <DataTrigger Binding="{Binding IsMainPhase1}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding OpponentMainPhase1}" Value="True">
+                                <Setter Property="Background" Value="Purple"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Label.Style>
@@ -75,6 +137,9 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsBattlePhase}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding OpponentBattlePhase}" Value="True">
+                                <Setter Property="Background" Value="Purple"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -87,6 +152,9 @@
                             <DataTrigger Binding="{Binding IsMainPhase2}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding OpponentMainPhase2}" Value="True">
+                                <Setter Property="Background" Value="Purple"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Label.Style>
@@ -97,6 +165,9 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsEndPhase}" Value="True">
                                 <Setter Property="Background" Value="Pink"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding OpponentEndPhase}" Value="True">
+                                <Setter Property="Background" Value="Purple"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

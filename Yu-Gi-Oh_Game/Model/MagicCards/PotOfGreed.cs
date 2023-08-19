@@ -14,7 +14,7 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public override bool IsContinuous => false;
         public override void ResolveEffect(DuelMatViewModel vm)
         {
-            vm.DrawCards(2);
+            vm.DrawCards(2, true);
         }
 
     }

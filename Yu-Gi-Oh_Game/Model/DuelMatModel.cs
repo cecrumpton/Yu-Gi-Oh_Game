@@ -12,10 +12,13 @@ namespace Yu_Gi_Oh_Game.Model
     public class DuelMatModel
     {
         public List<ICard> Cards { get; }
+        public List<ICard> OpponentCards { get; }
         public DuelMatModel()
         {
             Cards = new List<ICard>();
             CreateCards();
+            OpponentCards = Cards;
+            OpponentCards.RemoveAt(OpponentCards.Count-1);//remove pot of greed for now
         }
 
         private void CreateCards()

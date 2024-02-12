@@ -12,9 +12,15 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public override string Name => "Pot of Greed";
         public override string Description => "Draw 2 cards.";
         public override bool IsContinuous => false;
-        public override void ResolveEffect(DuelMatViewModel vm)
+        public override void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm)
         {
-            vm.DrawCards(2, true);
+            //vm.DrawCards(2, true);
+            vm.DrawCards(duelist, 2);
+        }
+
+        public override void ResolveEffect(DuelistModel duelist)
+        {
+            duelist.DrawCard(2);
         }
 
     }

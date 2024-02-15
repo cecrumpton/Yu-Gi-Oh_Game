@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using Yu_Gi_Oh_Game.ViewModel;
 
 namespace Yu_Gi_Oh_Game.Model.MagicCards
@@ -12,16 +13,9 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public override string Name => "Pot of Greed";
         public override string Description => "Draw 2 cards.";
         public override bool IsContinuous => false;
-        public override void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm)
-        {
-            //vm.DrawCards(2, true);
-            vm.DrawCards(duelist, 2);
-        }
-
-        public override void ResolveEffect(DuelistModel duelist)
+        public override void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent)
         {
             duelist.DrawCard(2);
         }
-
     }
 }

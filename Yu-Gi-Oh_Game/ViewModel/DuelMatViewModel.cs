@@ -35,50 +35,30 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public DuelMatViewModel()
         {
-            //DuelMatModel modelPlayer = new DuelMatModel();
-            //DuelMatModel modelOpponent = new DuelMatModel();
             Player = new DuelistModel(new DeckModel());
             Opponent = new DuelistModel(new OpponentDeckModel());
-            //DuelistModel player = new DuelistModel();
-            //DuelistModel opponent = new DuelistModel();
+            Player.PropertyChanged += Player_PropertyChanged;
+            Opponent.PropertyChanged += Opponent_PropertyChanged;
 
-            //Deck = modelPlayer.Cards;
-            //OpponentDeck = modelOpponent.OpponentCards;
+            Player.ShuffleDeck();
+            Opponent.ShuffleDeck();
 
-            //DeckOrder = new int[Deck.Count];
-            //OpponentDeckOrder = new int[OpponentDeck.Count];
-
-            //ShuffleDeck(DeckOrder);
-            //ShuffleDeck(OpponentDeckOrder);
-            //Deck = ShuffleDeck2(Deck);
-            //OpponentDeck = ShuffleDeck2(OpponentDeck);
-
-            //PlayerCardsLeft = Deck.Count - 1;
-            //OpponentCardsLeft = OpponentDeck.Count - 1;
-
-            //Hand = new ObservableCollection<ICard>();
-            //OpponentHand = new ObservableCollection<ICard>();
-
-            //DrawCards(5, true);
-            //DrawCards(5, false);
-            //DrawCards(5, true);
-            //DrawCards(5, false);
-            //Player.DrawCards(5);
-            //Opponent.DrawCards(5);
-            Deck = ShuffleDeck2(Player.Deck);
-            OpponentDeck = ShuffleDeck2(Opponent.Deck);
-            DrawCards(Player, 5);
-            DrawCards(Opponent, 5);
+            Player.DrawCard(5);
+            Opponent.DrawCard(5);
+            //Deck = ShuffleDeck2(Player.Deck);
+            //OpponentDeck = ShuffleDeck2(Opponent.Deck);
+            //DrawCards(Player, 5);
+            //DrawCards(Opponent, 5);
 
             PlayerLifePoints = OpponentLifePoints = 8000;
 
             PlayerDrawPhase = true;
 
-            PlayerMonsterCards = new ObservableCollection<MonsterCardModel>();
-            OpponentMonsterCards = new ObservableCollection<MonsterCardModel>();
+            //PlayerMonsterCards = new ObservableCollection<MonsterCardModel>();
+            //OpponentMonsterCards = new ObservableCollection<MonsterCardModel>();
 
-            PlayerMagicAndTrapCards = new ObservableCollection<ICard>();
-            OpponentMagicAndTrapCards = new ObservableCollection<ICard>();
+            //PlayerMagicAndTrapCards = new ObservableCollection<ICard>();
+            //OpponentMagicAndTrapCards = new ObservableCollection<ICard>();
 
             AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
 
@@ -92,7 +72,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         #region Properties
 
         public DuelistModel Player { get; }
-        public DuelistModel Opponent { get;}
+        public DuelistModel Opponent { get; }
         public ICommand AdvancePhase { get; }
         public ICommand PlayCard { get; }
         public ICommand Attack { get; }
@@ -117,18 +97,18 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        public List<ICard> Deck { get; }
-        public List<ICard> OpponentDeck { get; }
+        public List<ICard> Deck { get => Player.Deck; }
+        public List<ICard> OpponentDeck { get => Opponent.Deck; }
 
         public ObservableCollection<ICard> PlayerHand { get => Player.Hand; }
         public ObservableCollection<ICard> OpponentHand { get => Opponent.Hand; }
 
-        public ObservableCollection<MonsterCardModel> PlayerMonsterCards { get; }
-        public ObservableCollection<MonsterCardModel> OpponentMonsterCards { get; }
+        public ObservableCollection<MonsterCardModel> PlayerMonsterCards { get => Player.PlayedMonsterCards; }
+        public ObservableCollection<MonsterCardModel> OpponentMonsterCards { get => Opponent.PlayedMonsterCards; }
 
 
-        public ObservableCollection<ICard> PlayerMagicAndTrapCards { get; }
-        public ObservableCollection<ICard> OpponentMagicAndTrapCards { get; }
+        public ObservableCollection<ICard> PlayerMagicAndTrapCards { get => Player.PlayedMagicAndTrapCards; }
+        public ObservableCollection<ICard> OpponentMagicAndTrapCards { get => Opponent.PlayedMagicAndTrapCards; }
 
         public bool PlayerTurn
         {
@@ -318,96 +298,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
         #endregion
 
         #region PublicMethods
-        //maybe this can be made private since it generally shouldn't be accessible other than for pot of greed?
-        //It may actually be best that pot of greed can't access this method, and instead the draw card method should be placed somewhere in a common action method?
-        //TODO: fix this so thatthe boolean isn't necessary. There needs to be a PlayerModel class for User and Opponent and that'll reduce a ton of repeated code.
-        //public void DrawCards(int numberOfCards, bool isPlayer)
-        //{
-        //    if (isPlayer)
-        //    {
-        //        for (int i = 0; i < numberOfCards; i++)
-        //        {
-        //            if (CardsLeft < 0) return;
-        //            Hand.Add(Deck[DeckOrder[CardsLeft]]);
-        //            CardsLeft--;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        for (int i = 0; i < numberOfCards; i++)
-        //        {
-        //            if (OpponentCardsLeft < 0) return;
-        //            OpponentHand.Add(OpponentDeck[OpponentDeckOrder[OpponentCardsLeft]]);
-        //            OpponentCardsLeft--;
-        //        }
-        //    }
-        //}
-
-        public void DrawCards(int numberOfCards, bool isPlayer)
-        {
-            if (isPlayer)
-            {
-                for (int i = 0; i < numberOfCards; i++)
-                {
-                    if (PlayerCardsLeft < 0) return;
-                    PlayerHand.Add(Deck[PlayerCardsLeft]);
-                    PlayerCardsLeft--;
-                }
-            }
-            else
-            {
-                for (int i = 0; i < numberOfCards; i++)
-                {
-                    if (OpponentCardsLeft < 0) return;
-                    OpponentHand.Add(OpponentDeck[OpponentCardsLeft]);
-                    OpponentCardsLeft--;
-                }
-            }
-        }
-
-        public void DrawCards(DuelistModel duelist, int numberOfCards)
-        {
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                if (duelist.CardsLeft <= 0) return;
-                duelist.CardsLeft--;
-                duelist.Hand.Add(Deck[duelist.CardsLeft]);
-            }
-        }
 
         #endregion
 
         #region PrivateMethods
 
-        //private void ShuffleDeck(int[] deck)
-        //{
-        //    for (int i = 0; i < Deck.Count; i++)
-        //    {
-        //        deck[i] = i;
-        //    }
-
-        //    for (int n = deck.Length - 1; n > 0; --n)
-        //    {
-        //        int k = _random.Next(n + 1);
-        //        int temp = deck[n];
-        //        deck[n] = deck[k];
-        //        deck[k] = temp;
-        //    }
-        //}
-
-        //TODO: move this somewhere else
-        //private static readonly object syncLock = new object();
-
-        private List<ICard> ShuffleDeck2(List<ICard> deck)
-        {
-            for (int n = deck.Count - 1; n > 0; --n)
-            {
-                int k = Random.Shared.Next(n + 1);
-                (deck[k], deck[n]) = (deck[n], deck[k]);
-            }
-            return deck;
-        }
-
+        //will eventaully check if it is player's turn
         private bool CheckIfPlayerTurn(object parameter)
         {
             return true;
@@ -430,7 +326,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
             {
                 if (PlayerCardsLeft < 0) return; //at some point make this to where the player loses the game
                 //DrawCards(1, true);
-                DrawCards(Player, 1);
+                //DrawCards(Player, 1);
+                Player.DrawCard(1);
                 PlayerDrawPhase = false;
                 PlayerStandbyPhase = true;
                 await Task.Delay(2000);
@@ -474,7 +371,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 if (OpponentCardsLeft < 0) return; //at some point make this to where the opponent loses the game
                 await Task.Delay(2000);
                 //DrawCards(1, false);
-                DrawCards(Opponent, 1);
+                Opponent.DrawCard(1);
+                //DrawCards(Opponent, 1);
                 await Task.Delay(2000);
                 OpponentDrawPhase = false;
                 OpponentStandbyPhase = true;
@@ -512,69 +410,25 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        //TODO: this will be the method to replace the ones below
-        //private async void PlayACard(DuelistModel duelist, object parameter)
-        //{
-        //    if (parameter is ICard == false) return;
-        //    ICard card = (ICard)parameter;
-        //    if (card.YuGiOhCardType == CardType.Monster && PlayerMonsterCards.Count < 5)
-        //    {
-        //        if (PlayerCanNormalSummonMonster == false) return;
-        //        PlayerMonsterCards.Add((MonsterCardModel)card);
-        //        PlayerHand.Remove(card);
-        //        PlayerCanNormalSummonMonster = false;
-        //    }
-        //    if (card.YuGiOhCardType == CardType.Magic)
-        //    {
-        //        MagicCardModel magicCard = (MagicCardModel)card;
-        //        PlayerHand.Remove(magicCard);
-        //        PlayerMagicAndTrapCards.Add(magicCard);
-        //        await Task.Delay(2000);
-        //        magicCard.ResolveEffect(Player, this);
-        //        if (magicCard.IsContinuous == false)
-        //            PlayerMagicAndTrapCards.Remove(magicCard);
-        //    }
-        //}
-
         //when implementing chains I can remove the await and async out of this method.
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
-        private async void PlayerPlayACard(object parameter)
+        //TODO: can I replace object parameter with ICard card?
+        private void PlayerPlayACard(object parameter)
         {
             if (parameter is ICard == false) return;
             ICard card = (ICard)parameter;
-            if (card.YuGiOhCardType == CardType.Monster && PlayerMonsterCards.Count < 5)
-            {
-                if (PlayerCanNormalSummonMonster == false) return;
-                PlayerMonsterCards.Add((MonsterCardModel)card);
-                PlayerHand.Remove(card);
-                PlayerCanNormalSummonMonster = false;
-            }
-            if (card.YuGiOhCardType == CardType.Magic)
-            {
-                MagicCardModel magicCard = (MagicCardModel) card;
-                PlayerHand.Remove(magicCard);
-                PlayerMagicAndTrapCards.Add(magicCard);
-                await Task.Delay(2000);
-                magicCard.ResolveEffect(Player, this);
-                if(magicCard.IsContinuous == false)
-                    PlayerMagicAndTrapCards.Remove(magicCard);
-            }
+            Player.PlayACard(card, this, Opponent);
         }
 
         private void OpponentPlayACard(object parameter)
         {
             if (parameter is ICard == false) return;
             ICard card = (ICard)parameter;
-            if (card.YuGiOhCardType == CardType.Monster && OpponentMonsterCards.Count < 5)
-            {
-                if (OpponentCanNormalSummonMonster == false) return;
-                OpponentMonsterCards.Add((MonsterCardModel)card);
-                OpponentHand.Remove(card);
-                OpponentCanNormalSummonMonster = false;
-            }
+            Opponent.PlayACard(card, this, Player);
         }
 
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
+        //TODO: should the duielist model handle this logic, or should it be handled in the duel mat view model/duel mat model, or split between the two?
         private void AttackOpponent(object parameter)
         {
             if (parameter is MonsterCardModel == false) return;
@@ -584,6 +438,9 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 OpponentLifePoints = OpponentLifePoints - card.Attack;
                 card.CanAttack = false;
             }
+            //if (parameter is MonsterCardModel == false) return;
+            //MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
+            //Player.AttackOpponent(card, OpponentLifePoints);
         }
 
         private void AttackPlayer(object parameter)
@@ -595,6 +452,21 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 PlayerLifePoints = PlayerLifePoints - card.Attack;
                 card.CanAttack = false;
             }
+            //if (parameter is MonsterCardModel == false) return;
+            //MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
+            //Opponent.AttackOpponent(card, PlayerLifePoints);
+        }
+
+
+        private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Player.LifePoints))
+                OnPropertyChanged(nameof(PlayerLifePoints));
+        }
+        private void Opponent_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Opponent.LifePoints))
+                OnPropertyChanged(nameof(OpponentLifePoints));
         }
 
         #endregion

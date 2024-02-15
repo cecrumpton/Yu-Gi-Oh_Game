@@ -13,8 +13,6 @@ namespace Yu_Gi_Oh_Game.Model
         public abstract string Name { get; }
         public abstract string Description { get; }
         public abstract bool IsContinuous { get; }
-        public abstract void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm);
-        public abstract void ResolveEffect(DuelistModel duelist);
-
+        public abstract void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent);
     }
 }

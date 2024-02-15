@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Other;
+using Yu_Gi_Oh_Game.ViewModel;
 
 namespace Yu_Gi_Oh_Game.Model
 {
@@ -28,23 +29,12 @@ namespace Yu_Gi_Oh_Game.Model
 
         public DuelistModel(IDeckModel deckModel)
         {
-            //DuelMatModel model = new DuelMatModel();
-            //Deck = model.Cards;
             Deck = deckModel.Deck;
             CardsLeft = Deck.Count - 1;
-            //ShuffleDeck(Deck);
             Hand = new ObservableCollection<ICard>();
+            PlayedMonsterCards = new ObservableCollection<MonsterCardModel>();
+            PlayedMagicAndTrapCards = new ObservableCollection<ICard>();
         }
-
-        //private List<ICard> ShuffleDeck(List<ICard> deck)
-        //{
-        //    for (int n = deck.Count - 1; n > 0; --n)
-        //    {
-        //        int k = Random.Shared.Next(n + 1);
-        //        (deck[k], deck[n]) = (deck[n], deck[k]);
-        //    }
-        //    return deck;
-        //}
 
         #region properties
         public ICommand AdvancePhase { get; }
@@ -63,7 +53,7 @@ namespace Yu_Gi_Oh_Game.Model
         public List<ICard> Deck { get; }
         public int CardsLeft { get; set; }
 
-        public ObservableCollection<ICard> Hand { get; }
+        public ObservableCollection<ICard> Hand { get; set; }
 
         //TODO: make an IMonsterCard that inherits ICard
         public ObservableCollection<MonsterCardModel> PlayedMonsterCards { get; }
@@ -164,19 +154,8 @@ namespace Yu_Gi_Oh_Game.Model
             }
         }
 
-        //public void DrawCards(DuelistModel duelist, int numberOfCards)
-        //{
-        //    for (int i = 0; i < numberOfCards; i++)
-        //    {
-        //        if (duelist.CardsLeft <= 0) return;
-        //        duelist.CardsLeft--;
-        //        duelist.Hand.Add(Deck[duelist.CardsLeft]); //Deck is different
-        //    }
-        //}
-
         //when implementing chains I can remove the await and async out of this method.
-        //TODO: fix magicCard.ResolveEffect()
-        public async void PlayACard(ICard card)
+        public async void PlayACard(ICard card, DuelMatViewModel vm, DuelistModel opponent)
         {
             if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count < 5)
             {
@@ -191,52 +170,14 @@ namespace Yu_Gi_Oh_Game.Model
                 Hand.Remove(magicCard);
                 PlayedMagicAndTrapCards.Add(magicCard);
                 await Task.Delay(2000);
-                magicCard.ResolveEffect(this);
+                magicCard.ResolveEffect(this, vm, opponent);
                 if (magicCard.IsContinuous == false)
                     PlayedMagicAndTrapCards.Remove(magicCard);
             }
         }
 
-        ////when implementing chains I can remove the await and async out of this method.
-        ////TODO: these to methods can be condensed down in to one, similar to the draw cards method
-        //private async void PlayerPlayACard(object parameter)
-        //{
-        //    if (parameter is ICard == false) return;
-        //    ICard card = (ICard)parameter;
-        //    if (card.YuGiOhCardType == CardType.Monster && PlayerMonsterCards.Count < 5)
-        //    {
-        //        if (PlayerCanNormalSummonMonster == false) return;
-        //        PlayerMonsterCards.Add((MonsterCardModel)card);
-        //        PlayerHand.Remove(card);
-        //        PlayerCanNormalSummonMonster = false;
-        //    }
-        //    if (card.YuGiOhCardType == CardType.Magic)
-        //    {
-        //        MagicCardModel magicCard = (MagicCardModel)card;
-        //        PlayerHand.Remove(magicCard);
-        //        PlayerMagicAndTrapCards.Add(magicCard);
-        //        await Task.Delay(2000);
-        //        magicCard.ResolveEffect(Player, this);
-        //        if (magicCard.IsContinuous == false)
-        //            PlayerMagicAndTrapCards.Remove(magicCard);
-        //    }
-        //}
-
-        //private void OpponentPlayACard(object parameter)
-        //{
-        //    if (parameter is ICard == false) return;
-        //    ICard card = (ICard)parameter;
-        //    if (card.YuGiOhCardType == CardType.Monster && OpponentMonsterCards.Count < 5)
-        //    {
-        //        if (OpponentCanNormalSummonMonster == false) return;
-        //        OpponentMonsterCards.Add((MonsterCardModel)card);
-        //        OpponentHand.Remove(card);
-        //        OpponentCanNormalSummonMonster = false;
-        //    }
-        //}
-
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
-        private void AttackOpponent(MonsterCardModel monsterCard, int opponentLifePoints)
+        public void AttackOpponent(MonsterCardModel monsterCard, int opponentLifePoints)
         {
             //if (parameter is MonsterCardModel == false) return;
             //MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster

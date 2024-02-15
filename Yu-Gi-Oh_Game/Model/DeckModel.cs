@@ -41,6 +41,8 @@ namespace Yu_Gi_Oh_Game.Model
 
             MagicCardModel PotOfGreed = new PotOfGreed();
 
+            MagicCardModel Ookazi = new Ookazi();
+
             Deck.Add(LusterDragon);
             Deck.Add(GeminiElf);
             Deck.Add(VorseRaider);
@@ -52,6 +54,7 @@ namespace Yu_Gi_Oh_Game.Model
             //Cards.Add(TheWingedDragonOfRa);
             //Cards.Add(DarkMagicianGirl);
             Deck.Add(PotOfGreed);
+            Deck.Add(Ookazi);
         }
     }
 }

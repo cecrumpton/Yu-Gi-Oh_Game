@@ -45,20 +45,10 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             Player.DrawCard(5);
             Opponent.DrawCard(5);
-            //Deck = ShuffleDeck2(Player.Deck);
-            //OpponentDeck = ShuffleDeck2(Opponent.Deck);
-            //DrawCards(Player, 5);
-            //DrawCards(Opponent, 5);
 
             PlayerLifePoints = OpponentLifePoints = 8000;
 
             PlayerDrawPhase = true;
-
-            //PlayerMonsterCards = new ObservableCollection<MonsterCardModel>();
-            //OpponentMonsterCards = new ObservableCollection<MonsterCardModel>();
-
-            //PlayerMagicAndTrapCards = new ObservableCollection<ICard>();
-            //OpponentMagicAndTrapCards = new ObservableCollection<ICard>();
 
             AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
 
@@ -272,29 +262,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        //public int[] DeckOrder { get; }
-        //public int[] OpponentDeckOrder { get; }
-
-        public int PlayerCardsLeft
-        {
-            get => Player.CardsLeft;
-            set
-            {
-                Player.CardsLeft = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int OpponentCardsLeft
-        {
-            get => Opponent.CardsLeft;
-            set
-            {
-                Opponent.CardsLeft = value;
-                OnPropertyChanged();
-            }
-        }
-
         #endregion
 
         #region PublicMethods
@@ -324,7 +291,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             //too much going on here, break down in to smaller methods
             if (PlayerDrawPhase)
             {
-                if (PlayerCardsLeft < 0) return; //at some point make this to where the player loses the game
+                if (Player.CardsLeft < 0) return; //at some point make this to where the player loses the game
                 //DrawCards(1, true);
                 //DrawCards(Player, 1);
                 Player.DrawCard(1);
@@ -368,7 +335,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 OpponentDrawPhase = true;
 
                 //AI Logic begins here, this will eventually need to be removed
-                if (OpponentCardsLeft < 0) return; //at some point make this to where the opponent loses the game
+                if (Opponent.CardsLeft < 0) return; //at some point make this to where the opponent loses the game
                 await Task.Delay(2000);
                 //DrawCards(1, false);
                 Opponent.DrawCard(1);

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Yu_Gi_Oh_Game.Model;
 using Yu_Gi_Oh_Game.Other;
 
@@ -17,21 +18,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
 {
     public class DuelMatViewModel : INotifyPropertyChanged
     {
-        private bool _isDrawPhase;
-        private bool _opponentDrawPhase;
-        private bool _isStandbyPhase;
-        private bool _opponentStandbyPhase;
-        private bool _isMainPhase1;
-        private bool _opponentMainPhase1;
-        private bool _isBattlePhase;
-        private bool _opponentBattlePhase;
-        private bool _isMainPhase2;
-        private bool _opponentMainPhase2;
-        private bool _isEndPhase;
-        private bool _opponentEndPhase;
         private string _advancePhaseText;
-        private bool _canNormalSummonMonster;
-        private bool _canOpponentNormalSummonMonster;
+        private bool _isFirstTurn;
 
         public DuelMatViewModel()
         {
@@ -48,15 +36,19 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             PlayerLifePoints = OpponentLifePoints = 8000;
 
-            PlayerDrawPhase = true;
+            //PlayerDrawPhase = true;
+            //AdvancePhaseText = "Draw";
+
+            OpponentDrawPhase = true;
+            AdvancePhaseText = "Opponent's Turn";
+
+            _isFirstTurn = true;
 
             AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
 
             PlayCard = new RelayCommand(PlayerPlayACard, CheckMainPhase);
 
             Attack = new RelayCommand(AttackOpponent, CheckBattlePhase);
-
-            AdvancePhaseText = "Draw";
         }
 
         #region Properties
@@ -291,67 +283,112 @@ namespace Yu_Gi_Oh_Game.ViewModel
             //too much going on here, break down in to smaller methods
             if (PlayerDrawPhase)
             {
-                if (Player.CardsLeft < 0) return; //at some point make this to where the player loses the game
-                //DrawCards(1, true);
-                //DrawCards(Player, 1);
-                Player.DrawCard(1);
-                PlayerDrawPhase = false;
-                PlayerStandbyPhase = true;
-                await Task.Delay(2000);
-                PlayerStandbyPhase = false;
-                PlayerMainPhase1 = true;
-                AdvancePhaseText = "Start Battle Phase";
-                PlayerCanNormalSummonMonster = true;
+                ExecuteDrawAndStandbyPhase(Player);
                 return;
             }
             if (PlayerMainPhase1)
             {
-                PlayerMainPhase1 = false;
-                PlayerBattlePhase = true;
-                foreach(var monsterCard in PlayerMonsterCards) 
-                {
-                    monsterCard.CanAttack = true;
-                }
-                AdvancePhaseText = "Start Main Phase 2";
+                if (_isFirstTurn == false)
+                    ExecuteBattlePhase(Player);
+                else
+                    ExecuteEndPhase(Player, Opponent);
                 return;
             }
             if (PlayerBattlePhase)
             {
-                PlayerBattlePhase = false;
-                PlayerMainPhase2 = true;
-                AdvancePhaseText = "End Turn";
+                ExecuteMainPhase2(Player);
                 return;
             }
             if (PlayerMainPhase2)
             {
-                PlayerMainPhase2 = false;
-                PlayerEndPhase = true;
-                AdvancePhaseText = "Opponent's Turn";
+                ExecuteEndPhase(Player, Opponent);
+                return;
+            }
+            if (OpponentDrawPhase)
+            {
+                ExecuteAIOpponent();
+                return;
+            }
+        }
 
-                //Start of logic for opponent's turn
-                await Task.Delay(2000);
-                PlayerEndPhase = false;
-                await Task.Delay(1000);
-                OpponentDrawPhase = true;
+        private async void ExecuteDrawAndStandbyPhase(DuelistModel duelist)
+        {
+            if (duelist.CardsLeft < 0) return; //at some point make this to where the player loses the game
+            duelist.DrawCard(1);
+            duelist.IsDrawPhase = false;
+            duelist.IsStandbyPhase = true;
+            await Task.Delay(2000);
+            duelist.IsStandbyPhase = false;
+            duelist.IsMainPhase1 = true;
+            if (_isFirstTurn == false)
+                AdvancePhaseText = "Start Battle Phase";
+            else
+                AdvancePhaseText = "End Turn";
+            duelist.CanNormalSummonMonster = true;
+            return;
+        }
 
-                //AI Logic begins here, this will eventually need to be removed
-                if (Opponent.CardsLeft < 0) return; //at some point make this to where the opponent loses the game
-                await Task.Delay(2000);
-                //DrawCards(1, false);
-                Opponent.DrawCard(1);
-                //DrawCards(Opponent, 1);
-                await Task.Delay(2000);
-                OpponentDrawPhase = false;
-                OpponentStandbyPhase = true;
-                await Task.Delay(2000);
-                OpponentStandbyPhase = false;
-                OpponentMainPhase1 = true;
-                await Task.Delay(2000);
-                OpponentCanNormalSummonMonster = true;
-                var cardToPlay = OpponentHand[Random.Shared.Next(5)];
-                OpponentPlayACard(cardToPlay);
-                await Task.Delay(2000);
-                OpponentMainPhase1 = false;
+        private void ExecuteBattlePhase(DuelistModel duelist)
+        {
+            duelist.IsMainPhase1 = false;
+            duelist.IsBattlePhase = true;
+            foreach (var monsterCard in duelist.PlayedMonsterCards)
+            {
+                monsterCard.CanAttack = true;
+            }
+            AdvancePhaseText = "Start Main Phase 2";
+            return;
+        }
+
+        private void ExecuteMainPhase2(DuelistModel duelist)
+        {
+            duelist.IsBattlePhase = false;
+            duelist.IsMainPhase2 = true;
+            AdvancePhaseText = "End Turn";
+            return;
+        }
+
+        private async void ExecuteEndPhase(DuelistModel duelist, DuelistModel opponent)
+        {
+            if(_isFirstTurn == false)
+                duelist.IsMainPhase2 = false;
+            else
+                duelist.IsMainPhase1 = false;
+            duelist.IsEndPhase = true;
+            await Task.Delay(2000);
+            duelist.IsEndPhase = false;
+            if (_isFirstTurn == true)
+                _isFirstTurn = false;
+            AdvancePhaseText = "Opponent's Turn";
+            await Task.Delay(1000);
+            opponent.IsDrawPhase = true;
+
+            //here temporarily uitil logic can be used for both human and ai
+            ExecuteAIOpponent();
+        }
+
+        private async void ExecuteAIOpponent()
+        {
+            //AI Logic begins here, this will eventually need to be removed
+            if (Opponent.CardsLeft < 0) return; //at some point make this to where the opponent loses the game
+            await Task.Delay(2000);
+            //DrawCards(1, false);
+            Opponent.DrawCard(1);
+            //DrawCards(Opponent, 1);
+            await Task.Delay(2000);
+            OpponentDrawPhase = false;
+            OpponentStandbyPhase = true;
+            await Task.Delay(2000);
+            OpponentStandbyPhase = false;
+            OpponentMainPhase1 = true;
+            await Task.Delay(2000);
+            OpponentCanNormalSummonMonster = true;
+            var cardToPlay = OpponentHand[Random.Shared.Next(5)];
+            OpponentPlayACard(cardToPlay);
+            await Task.Delay(2000);
+            OpponentMainPhase1 = false;
+            if(_isFirstTurn == false)
+            {
                 OpponentBattlePhase = true;
                 foreach (var monsterCard in OpponentMonsterCards)
                 {
@@ -364,17 +401,15 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 OpponentMainPhase2 = true;
                 await Task.Delay(2000);
                 OpponentMainPhase2 = false;
-                OpponentEndPhase = true;
-                await Task.Delay(2000);
-                OpponentEndPhase = false;
-                PlayerDrawPhase = true;
-                AdvancePhaseText = "Draw";
-                return;
             }
-            if (PlayerEndPhase)
-            {
-
-            }
+            OpponentEndPhase = true;
+            await Task.Delay(2000);
+            OpponentEndPhase = false;
+            if(_isFirstTurn)
+                _isFirstTurn = false;
+            PlayerDrawPhase = true;
+            AdvancePhaseText = "Draw";
+            return;
         }
 
         //when implementing chains I can remove the await and async out of this method.
@@ -427,13 +462,18 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Player.LifePoints))
-                OnPropertyChanged(nameof(PlayerLifePoints));
+            OnPropertyChanged(nameof(PlayerDrawPhase));
+            OnPropertyChanged(nameof(PlayerStandbyPhase));
+            OnPropertyChanged(nameof(PlayerMainPhase1));
+            OnPropertyChanged(nameof(PlayerBattlePhase));
+            OnPropertyChanged(nameof(PlayerMainPhase2));
+            OnPropertyChanged(nameof(PlayerEndPhase));
+            OnPropertyChanged(nameof(PlayerLifePoints));
         }
         private void Opponent_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Opponent.LifePoints))
-                OnPropertyChanged(nameof(OpponentLifePoints));
+            OnPropertyChanged(nameof(OpponentDrawPhase));
+            OnPropertyChanged(nameof(OpponentLifePoints));
         }
 
         #endregion

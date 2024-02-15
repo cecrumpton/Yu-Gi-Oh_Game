@@ -56,7 +56,7 @@ namespace Yu_Gi_Oh_Game.Model
         public ObservableCollection<ICard> Hand { get; set; }
 
         //TODO: make an IMonsterCard that inherits ICard
-        public ObservableCollection<MonsterCardModel> PlayedMonsterCards { get; }
+        public ObservableCollection<MonsterCardModel?> PlayedMonsterCards { get; }
 
         public ObservableCollection<ICard> PlayedMagicAndTrapCards { get; }
 
@@ -139,7 +139,7 @@ namespace Yu_Gi_Oh_Game.Model
         {
             for (int i = 0; i < numberOfCards; i++)
             {
-                if (CardsLeft <= 0) return;
+                if (CardsLeft <= 0) return; //at some point make this to where the player loses the game
                 Hand.Add(Deck[CardsLeft]);
                 CardsLeft--;
             }            

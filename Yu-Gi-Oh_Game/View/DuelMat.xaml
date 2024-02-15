@@ -63,13 +63,13 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <!--<Button Margin="5,0" Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">-->
+                        <Button Margin="5,0" Command="{Binding DataContext.AttackTarget, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
                             <StackPanel Margin="5,0" Orientation="Vertical">
                                 <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                                 <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                                 <TextBlock Text="{Binding Defense}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                             </StackPanel>
-                        <!--</Button>-->
+                        </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

@@ -20,6 +20,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
     {
         private string _advancePhaseText;
         private bool _isFirstTurn;
+        private bool _canAttackTarget;
+        private MonsterCardModel _attackingMonsterCard;
 
         public DuelMatViewModel()
         {
@@ -36,11 +38,24 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             PlayerLifePoints = OpponentLifePoints = 8000;
 
-            //PlayerDrawPhase = true;
-            //AdvancePhaseText = "Draw";
+            Random random = new Random();
+            var turn = random.Next(0, 2);
 
-            OpponentDrawPhase = true;
-            AdvancePhaseText = "Opponent's Turn";
+            #if DEBUG
+                turn = 0;
+            #endif
+
+            if (turn == 0)
+            {
+                PlayerDrawPhase = true;
+                AdvancePhaseText = "Draw";
+            }
+            else
+            {
+                OpponentDrawPhase = true;
+                AdvancePhaseText = "Opponent's Turn";
+                ExecuteAIOpponent();
+            }
 
             _isFirstTurn = true;
 
@@ -49,6 +64,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
             PlayCard = new RelayCommand(PlayerPlayACard, CheckMainPhase);
 
             Attack = new RelayCommand(AttackOpponent, CheckBattlePhase);
+
+            AttackTarget = new RelayCommand(AttackOpponentCard, CheckAttackTarget);
         }
 
         #region Properties
@@ -58,6 +75,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         public ICommand AdvancePhase { get; }
         public ICommand PlayCard { get; }
         public ICommand Attack { get; }
+        public ICommand AttackTarget { get; }
 
         public int PlayerLifePoints
         {
@@ -254,6 +272,26 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
+        public bool CanAttackTarget
+        {
+            get => _canAttackTarget;
+            set
+            {
+                _canAttackTarget = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public MonsterCardModel? AttackingMonsterCard
+        {
+            get => _attackingMonsterCard;
+            set
+            {
+                _attackingMonsterCard = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region PublicMethods
@@ -265,7 +303,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         //will eventaully check if it is player's turn
         private bool CheckIfPlayerTurn(object parameter)
         {
-            return true;
+            return PlayerTurn;
         }
 
         private bool CheckMainPhase(object parameter)
@@ -278,9 +316,13 @@ namespace Yu_Gi_Oh_Game.ViewModel
             return PlayerBattlePhase;
         }
 
+        private bool CheckAttackTarget(object parameter)
+        {
+            return CanAttackTarget;
+        }
+
         private async void AdvanceTurnPhase(object parameter)
         {
-            //too much going on here, break down in to smaller methods
             if (PlayerDrawPhase)
             {
                 ExecuteDrawAndStandbyPhase(Player);
@@ -304,16 +346,10 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 ExecuteEndPhase(Player, Opponent);
                 return;
             }
-            if (OpponentDrawPhase)
-            {
-                ExecuteAIOpponent();
-                return;
-            }
         }
 
         private async void ExecuteDrawAndStandbyPhase(DuelistModel duelist)
         {
-            if (duelist.CardsLeft < 0) return; //at some point make this to where the player loses the game
             duelist.DrawCard(1);
             duelist.IsDrawPhase = false;
             duelist.IsStandbyPhase = true;
@@ -325,7 +361,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             else
                 AdvancePhaseText = "End Turn";
             duelist.CanNormalSummonMonster = true;
-            return;
         }
 
         private void ExecuteBattlePhase(DuelistModel duelist)
@@ -337,7 +372,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 monsterCard.CanAttack = true;
             }
             AdvancePhaseText = "Start Main Phase 2";
-            return;
         }
 
         private void ExecuteMainPhase2(DuelistModel duelist)
@@ -345,7 +379,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             duelist.IsBattlePhase = false;
             duelist.IsMainPhase2 = true;
             AdvancePhaseText = "End Turn";
-            return;
         }
 
         private async void ExecuteEndPhase(DuelistModel duelist, DuelistModel opponent)
@@ -390,12 +423,16 @@ namespace Yu_Gi_Oh_Game.ViewModel
             if(_isFirstTurn == false)
             {
                 OpponentBattlePhase = true;
-                foreach (var monsterCard in OpponentMonsterCards)
-                {
-                    monsterCard.CanAttack = true;
-                    AttackPlayer(monsterCard);
-                    await Task.Delay(2000);
-                }
+                //TODO: iterate through each monster card instead of just the first monster
+                //foreach (var monsterCard in OpponentMonsterCards)
+                //{
+                //    monsterCard.CanAttack = true;
+                //    AttackPlayer(monsterCard);
+                //    await Task.Delay(2000);
+                //}
+
+                OpponentMonsterCards[0].CanAttack = true;
+                AttackPlayer(OpponentMonsterCards[0]);
                 await Task.Delay(2000);
                 OpponentBattlePhase = false;
                 OpponentMainPhase2 = true;
@@ -409,7 +446,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 _isFirstTurn = false;
             PlayerDrawPhase = true;
             AdvancePhaseText = "Draw";
-            return;
         }
 
         //when implementing chains I can remove the await and async out of this method.
@@ -437,12 +473,43 @@ namespace Yu_Gi_Oh_Game.ViewModel
             MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
             if (card.CanAttack)
             {
-                OpponentLifePoints = OpponentLifePoints - card.Attack;
-                card.CanAttack = false;
+                if (Opponent.PlayedMonsterCards.Count == 0)
+                {
+                    OpponentLifePoints = OpponentLifePoints - card.Attack;
+                    card.CanAttack = false;
+                }
+                else
+                {
+                    AttackingMonsterCard = card;
+                    CanAttackTarget = true;
+                }
             }
-            //if (parameter is MonsterCardModel == false) return;
-            //MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
-            //Player.AttackOpponent(card, OpponentLifePoints);
+        }
+
+        private void AttackOpponentCard(object parameter)
+        {
+            if (parameter is MonsterCardModel == false) return;
+            MonsterCardModel cardToAttack = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
+            if(AttackingMonsterCard == null) return;
+            if(AttackingMonsterCard.Attack > cardToAttack.Attack)
+            {
+                Opponent.PlayedMonsterCards.Remove(cardToAttack);
+                OpponentLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
+            }
+            if (AttackingMonsterCard.Attack < cardToAttack.Attack)
+            {
+                Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                PlayerLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
+            }
+            if (AttackingMonsterCard.Attack == cardToAttack.Attack)
+            {
+                Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                Opponent.PlayedMonsterCards.Remove(cardToAttack);
+            }
+
+            AttackingMonsterCard.CanAttack = false;
+            AttackingMonsterCard = null;
+            CanAttackTarget = false;
         }
 
         private void AttackPlayer(object parameter)
@@ -451,12 +518,41 @@ namespace Yu_Gi_Oh_Game.ViewModel
             MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
             if (card.CanAttack)
             {
-                PlayerLifePoints = PlayerLifePoints - card.Attack;
-                card.CanAttack = false;
+                if (Player.PlayedMonsterCards.Count == 0)
+                {
+                    PlayerLifePoints = PlayerLifePoints - card.Attack;
+                    card.CanAttack = false;
+                }
+                else
+                {
+                    AttackingMonsterCard = card;
+                    AttackPlayerCard(Player.PlayedMonsterCards[0]);
+                }
             }
-            //if (parameter is MonsterCardModel == false) return;
-            //MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
-            //Opponent.AttackOpponent(card, PlayerLifePoints);
+        }
+
+        private void AttackPlayerCard(MonsterCardModel cardToAttack)
+        {
+            if (AttackingMonsterCard == null) return;
+            if (AttackingMonsterCard.Attack > cardToAttack.Attack)
+            {
+                Player.PlayedMonsterCards.Remove(cardToAttack);
+                PlayerLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
+            }
+            if (AttackingMonsterCard.Attack < cardToAttack.Attack)
+            {
+                Opponent.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                OpponentLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
+            }
+            if (AttackingMonsterCard.Attack == cardToAttack.Attack)
+            {
+                Opponent.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                Player.PlayedMonsterCards.Remove(cardToAttack);
+            }
+
+            AttackingMonsterCard.CanAttack = false;
+            AttackingMonsterCard = null;
+            CanAttackTarget = false;
         }
 
 
@@ -469,11 +565,18 @@ namespace Yu_Gi_Oh_Game.ViewModel
             OnPropertyChanged(nameof(PlayerMainPhase2));
             OnPropertyChanged(nameof(PlayerEndPhase));
             OnPropertyChanged(nameof(PlayerLifePoints));
+            OnPropertyChanged(nameof(PlayerMonsterCards));
         }
         private void Opponent_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(OpponentDrawPhase));
+            OnPropertyChanged(nameof(OpponentStandbyPhase));
+            OnPropertyChanged(nameof(OpponentMainPhase1));
+            OnPropertyChanged(nameof(OpponentBattlePhase));
+            OnPropertyChanged(nameof(OpponentMainPhase2));
+            OnPropertyChanged(nameof(OpponentEndPhase));
             OnPropertyChanged(nameof(OpponentLifePoints));
+            OnPropertyChanged(nameof(OpponentMonsterCards));
         }
 
         #endregion

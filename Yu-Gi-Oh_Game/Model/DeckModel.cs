@@ -33,11 +33,11 @@ namespace Yu_Gi_Oh_Game.Model
 
             MonsterCardModel SliferTheSkyDragon = new MonsterCardModel("Slifer The Sky Dragon", 3500, 3500);
 
-            //MonsterCardModel ObeliskTheTormentor = new MonsterCardModel("Obelisk The Tormentor", 4000, 4000);
+            MonsterCardModel ObeliskTheTormentor = new MonsterCardModel("Obelisk The Tormentor", 4000, 4000);
 
-            //MonsterCardModel TheWingedDragonOfRa = new MonsterCardModel("The Winged Dragon Of Ra", 5000, 5000);
+            MonsterCardModel TheWingedDragonOfRa = new MonsterCardModel("The Winged Dragon Of Ra", 5000, 5000);
 
-            //MonsterCardModel DarkMagicianGirl = new MonsterCardModel("Dark Magician Girl", 2000, 1700);
+            MonsterCardModel DarkMagicianGirl = new MonsterCardModel("Dark Magician Girl", 2000, 1700);
 
             MagicCardModel PotOfGreed = new PotOfGreed();
 
@@ -50,9 +50,9 @@ namespace Yu_Gi_Oh_Game.Model
             Deck.Add(RedEyesBlackDragon);
             Deck.Add(BlueEyesWhiteDragon);
             Deck.Add(SliferTheSkyDragon);
-            //Cards.Add(ObeliskTheTormentor);
-            //Cards.Add(TheWingedDragonOfRa);
-            //Cards.Add(DarkMagicianGirl);
+            Deck.Add(ObeliskTheTormentor);
+            Deck.Add(TheWingedDragonOfRa);
+            Deck.Add(DarkMagicianGirl);
             Deck.Add(PotOfGreed);
             Deck.Add(Ookazi);
         }

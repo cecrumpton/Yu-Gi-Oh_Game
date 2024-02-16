@@ -13,7 +13,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Yu_Gi_Oh_Game.Model;
-using Yu_Gi_Oh_Game.Other;
 
 namespace Yu_Gi_Oh_Game.ViewModel
 {
@@ -60,7 +59,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             _isFirstTurn = true;
 
-            AdvancePhase = new DelegateCommand(AdvanceTurnPhase, CheckPlayerTurn);
+            AdvancePhase = new DelegateCommand(AdvanceTurnPhase);
             PlayCard = new DelegateCommand<ICard>(PlayACard);
             Attack = new DelegateCommand<MonsterCardModel>(AttackOpponent);
             AttackTarget = new DelegateCommand<MonsterCardModel>(AttackOpponentCard);
@@ -297,25 +296,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
         #endregion
 
         #region PrivateMethods
-
-        private bool CheckPlayerTurn()
-        {
-            return IsPlayerTurn;
-        }
-        private bool CheckMainPhase()
-        {
-            return PlayerMainPhase1 || PlayerMainPhase2;
-        }
-
-        private bool CheckBattlePhase()
-        {
-            return PlayerBattlePhase;
-        }
-
-        private bool CheckAttackTarget()
-        {
-            return CanAttackTarget;
-        }
 
         private void AdvanceTurnPhase()
         {

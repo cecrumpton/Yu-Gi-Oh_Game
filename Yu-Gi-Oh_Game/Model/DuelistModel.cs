@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Yu_Gi_Oh_Game.Model.MagicCards;
-using Yu_Gi_Oh_Game.Other;
 using Yu_Gi_Oh_Game.ViewModel;
 
 namespace Yu_Gi_Oh_Game.Model

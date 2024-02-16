@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Commands;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -59,12 +60,10 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             _isFirstTurn = true;
 
-            AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckPlayerTurn); //will eventaully check just the boolean, not a whole method
-            //AdvancePhase = new RelayCommand(AdvanceTurnPhase, PlayerTurn); //will eventaully check just the boolean, not a whole method
-            PlayCard = new RelayCommand<ICard>(PlayACard, CheckMainPhase);
-            Attack = new RelayCommand<ICard>(AttackOpponent, CheckBattlePhase);
-            //Attack = new RelayCommand<ICard>(AttackOpponent, PlayerBattlePhase);
-            AttackTarget = new RelayCommand<ICard>(AttackOpponentCard, CheckAttackTarget);
+            AdvancePhase = new DelegateCommand(AdvanceTurnPhase, CheckPlayerTurn);
+            PlayCard = new DelegateCommand<ICard>(PlayACard);
+            Attack = new DelegateCommand<MonsterCardModel>(AttackOpponent);
+            AttackTarget = new DelegateCommand<MonsterCardModel>(AttackOpponentCard);
         }
 
         #region Properties
@@ -109,13 +108,13 @@ namespace Yu_Gi_Oh_Game.ViewModel
         public ObservableCollection<ICard> PlayerMagicAndTrapCards { get => Player.PlayedMagicAndTrapCards; }
         public ObservableCollection<ICard> OpponentMagicAndTrapCards { get => Opponent.PlayedMagicAndTrapCards; }
 
-        public bool PlayerTurn
+        public bool IsPlayerTurn
         {
             get => PlayerDrawPhase || PlayerStandbyPhase || PlayerMainPhase1 || 
                 PlayerBattlePhase || PlayerMainPhase2 || PlayerEndPhase;
         }
 
-        public bool OpponentTurn
+        public bool IsOpponentTurn
         {
             get => OpponentDrawPhase || OpponentStandbyPhase || OpponentMainPhase1 ||
                 OpponentBattlePhase || OpponentMainPhase2 || OpponentEndPhase;
@@ -301,7 +300,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private bool CheckPlayerTurn()
         {
-            return PlayerTurn;
+            return IsPlayerTurn;
         }
         private bool CheckMainPhase()
         {
@@ -320,28 +319,31 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private void AdvanceTurnPhase()
         {
-            if (PlayerDrawPhase)
+            if (IsPlayerTurn)
             {
-                ExecuteDrawAndStandbyPhase(Player);
-                return;
-            }
-            if (PlayerMainPhase1)
-            {
-                if (_isFirstTurn == false)
-                    ExecuteBattlePhase(Player);
-                else
+                if (PlayerDrawPhase)
+                {
+                    ExecuteDrawAndStandbyPhase(Player);
+                    return;
+                }
+                if (PlayerMainPhase1)
+                {
+                    if (_isFirstTurn == false)
+                        ExecuteBattlePhase(Player);
+                    else
+                        ExecuteEndPhase(Player, Opponent);
+                    return;
+                }
+                if (PlayerBattlePhase)
+                {
+                    ExecuteMainPhase2(Player);
+                    return;
+                }
+                if (PlayerMainPhase2)
+                {
                     ExecuteEndPhase(Player, Opponent);
-                return;
-            }
-            if (PlayerBattlePhase)
-            {
-                ExecuteMainPhase2(Player);
-                return;
-            }
-            if (PlayerMainPhase2)
-            {
-                ExecuteEndPhase(Player, Opponent);
-                return;
+                    return;
+                }
             }
         }
 
@@ -447,10 +449,10 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private void PlayACard(ICard card)
         {
-            if (PlayerTurn)
+            if (PlayerMainPhase1 || PlayerMainPhase2)
+            {
                 Player.PlayACard(card, this, Opponent);
-            else
-                Opponent.PlayACard(card, this, Player);
+            }
         }
 
         //This is here to handle AI logic
@@ -463,49 +465,51 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
         //TODO: should the duielist model handle this logic, or should it be handled in the duel mat view model/duel mat model, or split between the two?
-        private void AttackOpponent(object parameter)
+        private void AttackOpponent(MonsterCardModel card)
         {
-            if (parameter is MonsterCardModel == false) return;
-            MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
-            if (card.CanAttack)
+            if(PlayerBattlePhase)
             {
-                if (Opponent.PlayedMonsterCards.Count == 0)
+                if (card.CanAttack)
                 {
-                    OpponentLifePoints = OpponentLifePoints - card.Attack;
-                    card.CanAttack = false;
-                }
-                else
-                {
-                    AttackingMonsterCard = card;
-                    CanAttackTarget = true;
+                    if (Opponent.PlayedMonsterCards.Count == 0)
+                    {
+                        OpponentLifePoints = OpponentLifePoints - card.Attack;
+                        card.CanAttack = false;
+                    }
+                    else
+                    {
+                        AttackingMonsterCard = card;
+                        CanAttackTarget = true;
+                    }
                 }
             }
         }
 
-        private void AttackOpponentCard(object parameter)
+        private void AttackOpponentCard(MonsterCardModel cardToAttack)
         {
-            if (parameter is MonsterCardModel == false) return;
-            MonsterCardModel cardToAttack = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
-            if(AttackingMonsterCard == null) return;
-            if(AttackingMonsterCard.Attack > cardToAttack.Attack)
+            if (CanAttackTarget)
             {
-                Opponent.PlayedMonsterCards.Remove(cardToAttack);
-                OpponentLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
-            }
-            if (AttackingMonsterCard.Attack < cardToAttack.Attack)
-            {
-                Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
-                PlayerLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
-            }
-            if (AttackingMonsterCard.Attack == cardToAttack.Attack)
-            {
-                Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
-                Opponent.PlayedMonsterCards.Remove(cardToAttack);
-            }
+                if (AttackingMonsterCard == null) return;
+                if (AttackingMonsterCard.Attack > cardToAttack.Attack)
+                {
+                    Opponent.PlayedMonsterCards.Remove(cardToAttack);
+                    OpponentLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
+                }
+                if (AttackingMonsterCard.Attack < cardToAttack.Attack)
+                {
+                    Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                    PlayerLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
+                }
+                if (AttackingMonsterCard.Attack == cardToAttack.Attack)
+                {
+                    Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                    Opponent.PlayedMonsterCards.Remove(cardToAttack);
+                }
 
-            AttackingMonsterCard.CanAttack = false;
-            AttackingMonsterCard = null;
-            CanAttackTarget = false;
+                AttackingMonsterCard.CanAttack = false;
+                AttackingMonsterCard = null;
+                CanAttackTarget = false;
+            }
         }
 
         private void AttackPlayer(object parameter)

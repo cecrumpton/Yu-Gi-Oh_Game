@@ -59,13 +59,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             _isFirstTurn = true;
 
-            AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckIfPlayerTurn); //will eventaully check if it is player's turn
-
-            PlayCard = new RelayCommand(PlayerPlayACard, CheckMainPhase);
-
-            Attack = new RelayCommand(AttackOpponent, CheckBattlePhase);
-
-            AttackTarget = new RelayCommand(AttackOpponentCard, CheckAttackTarget);
+            AdvancePhase = new RelayCommand(AdvanceTurnPhase, CheckPlayerTurn); //will eventaully check just the boolean, not a whole method
+            //AdvancePhase = new RelayCommand(AdvanceTurnPhase, PlayerTurn); //will eventaully check just the boolean, not a whole method
+            PlayCard = new RelayCommand<ICard>(PlayACard, CheckMainPhase);
+            Attack = new RelayCommand<ICard>(AttackOpponent, CheckBattlePhase);
+            //Attack = new RelayCommand<ICard>(AttackOpponent, PlayerBattlePhase);
+            AttackTarget = new RelayCommand<ICard>(AttackOpponentCard, CheckAttackTarget);
         }
 
         #region Properties
@@ -300,28 +299,26 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         #region PrivateMethods
 
-        //will eventaully check if it is player's turn
-        private bool CheckIfPlayerTurn(object parameter)
+        private bool CheckPlayerTurn()
         {
             return PlayerTurn;
         }
-
-        private bool CheckMainPhase(object parameter)
+        private bool CheckMainPhase()
         {
             return PlayerMainPhase1 || PlayerMainPhase2;
         }
 
-        private bool CheckBattlePhase(object parameter)
+        private bool CheckBattlePhase()
         {
             return PlayerBattlePhase;
         }
 
-        private bool CheckAttackTarget(object parameter)
+        private bool CheckAttackTarget()
         {
             return CanAttackTarget;
         }
 
-        private async void AdvanceTurnPhase(object parameter)
+        private void AdvanceTurnPhase()
         {
             if (PlayerDrawPhase)
             {
@@ -448,16 +445,15 @@ namespace Yu_Gi_Oh_Game.ViewModel
             AdvancePhaseText = "Draw";
         }
 
-        //when implementing chains I can remove the await and async out of this method.
-        //TODO: these to methods can be condensed down in to one, similar to the draw cards method
-        //TODO: can I replace object parameter with ICard card?
-        private void PlayerPlayACard(object parameter)
+        private void PlayACard(ICard card)
         {
-            if (parameter is ICard == false) return;
-            ICard card = (ICard)parameter;
-            Player.PlayACard(card, this, Opponent);
+            if (PlayerTurn)
+                Player.PlayACard(card, this, Opponent);
+            else
+                Opponent.PlayACard(card, this, Player);
         }
 
+        //This is here to handle AI logic
         private void OpponentPlayACard(object parameter)
         {
             if (parameter is ICard == false) return;

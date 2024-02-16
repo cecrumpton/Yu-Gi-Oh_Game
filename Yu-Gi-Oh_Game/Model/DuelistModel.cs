@@ -56,7 +56,7 @@ namespace Yu_Gi_Oh_Game.Model
         public ObservableCollection<ICard> Hand { get; set; }
 
         //TODO: make an IMonsterCard that inherits ICard
-        public ObservableCollection<MonsterCardModel?> PlayedMonsterCards { get; }
+        public ObservableCollection<MonsterCardModel> PlayedMonsterCards { get; }
 
         public ObservableCollection<ICard> PlayedMagicAndTrapCards { get; }
 

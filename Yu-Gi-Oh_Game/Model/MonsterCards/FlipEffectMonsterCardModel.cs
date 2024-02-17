@@ -9,7 +9,9 @@ namespace Yu_Gi_Oh_Game.Model.MonsterCards
 {
     public abstract class FlipEffectMonsterCardModel : IMonsterCard
     {
-        public CardType YuGiOhCardType => CardType.FlipEffectMonster;
+        public CardType YuGiOhCardType => CardType.Monster;
+        public MonsterCardType MonsterType => MonsterCardType.Effect;
+
         public abstract string Name { get; }
         public abstract int Attack { get; }
         public abstract int Defense { get; }

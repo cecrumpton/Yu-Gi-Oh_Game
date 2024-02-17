@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
@@ -23,6 +24,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private bool _isFirstTurn;
         private bool _canAttackTarget;
         private IMonsterCard _attackingMonsterCard;
+        private bool _isAttackDeclared;
 
         public DuelMatViewModel()
         {
@@ -34,6 +36,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             Player.ShuffleDeck();
             Opponent.ShuffleDeck();
 
+            Player.Hand.CollectionChanged += new NotifyCollectionChangedEventHandler(HandUpdated);
             Player.DrawCard(5);
             Opponent.DrawCard(5);
 
@@ -43,7 +46,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             var turn = random.Next(0, 2);
 
             #if DEBUG
-                turn = 0;
+                turn = 1;
             #endif
 
             if (turn == 0)
@@ -290,6 +293,16 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
+        public bool IsAttackDeclared
+        {
+            get => _isAttackDeclared;
+            set
+            {
+                _isAttackDeclared = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region PublicMethods
@@ -380,6 +393,23 @@ namespace Yu_Gi_Oh_Game.ViewModel
             ExecuteAIOpponent();
         }
 
+        private void HandUpdated(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                var hand = (ObservableCollection<ICard>)sender;
+                if(hand[hand.Count -1].YuGiOhCardType == CardType.Monster)
+                {
+                    var card = (IMonsterCard)hand[hand.Count - 1];
+                    if(card.MonsterType == MonsterCardType.Effect)
+                    {
+                        var newCard = (EffectMonsterCardModel)card;
+                        newCard.InitializeCardEffect(Player, this, Opponent);
+                    }
+                }
+            }
+        }
+
         private async void ExecuteAIOpponent()
         {
             //AI Logic begins here, this will eventually need to be removed
@@ -454,8 +484,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 {
                     if (Opponent.PlayedMonsterCards.Count == 0)
                     {
+                        AttackingMonsterCard = card;
+                        IsAttackDeclared = true;
                         OpponentLifePoints = OpponentLifePoints - card.Attack;
                         card.CanAttack = false;
+                        AttackingMonsterCard = null;
+                        IsAttackDeclared = false;
                     }
                     else
                     {
@@ -471,6 +505,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             if (CanAttackTarget)
             {
                 if (AttackingMonsterCard == null) return;
+                IsAttackDeclared = true;
                 if (AttackingMonsterCard.Attack > cardToAttack.Attack)
                 {
                     Opponent.PlayedMonsterCards.Remove(cardToAttack);
@@ -489,6 +524,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
                 AttackingMonsterCard.CanAttack = false;
                 AttackingMonsterCard = null;
+                IsAttackDeclared = false;
                 CanAttackTarget = false;
             }
         }

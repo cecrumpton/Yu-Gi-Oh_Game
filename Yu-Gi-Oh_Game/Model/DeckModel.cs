@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
+using Yu_Gi_Oh_Game.Model.MonsterCards.EffectMonsters;
 
 namespace Yu_Gi_Oh_Game.Model
 {
@@ -22,7 +23,9 @@ namespace Yu_Gi_Oh_Game.Model
         {
             NormalMonsterCardModel LusterDragon = new NormalMonsterCardModel("Luster Dragon", 1900, 1600);
 
-            NormalMonsterCardModel GeminiElf = new NormalMonsterCardModel("Gemini Elf", 1900, 900);
+            Dark_Elf DarkElf = new Dark_Elf();
+
+            //NormalMonsterCardModel GeminiElf = new NormalMonsterCardModel("Gemini Elf", 1900, 900);
 
             NormalMonsterCardModel VorseRaider = new NormalMonsterCardModel("Vorse Raider", 1900, 1200);
 
@@ -45,7 +48,7 @@ namespace Yu_Gi_Oh_Game.Model
             MagicCardModel Ookazi = new Ookazi();
 
             Deck.Add(LusterDragon);
-            Deck.Add(GeminiElf);
+            Deck.Add(DarkElf);
             Deck.Add(VorseRaider);
             Deck.Add(DarkMagician);
             Deck.Add(RedEyesBlackDragon);

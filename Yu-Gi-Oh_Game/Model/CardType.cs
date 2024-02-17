@@ -9,8 +9,6 @@ namespace Yu_Gi_Oh_Game.Model
     public enum CardType
     {
         Monster,
-        EffectMonster,
-        FlipEffectMonster,
         Magic,
         Trap,
     }

@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Yu_Gi_Oh_Game.Model;
+using Yu_Gi_Oh_Game.Model.MonsterCards;
 
 namespace Yu_Gi_Oh_Game.ViewModel
 {
@@ -21,7 +22,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private string _advancePhaseText;
         private bool _isFirstTurn;
         private bool _canAttackTarget;
-        private MonsterCardModel _attackingMonsterCard;
+        private IMonsterCard _attackingMonsterCard;
 
         public DuelMatViewModel()
         {
@@ -61,8 +62,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             AdvancePhase = new DelegateCommand(AdvanceTurnPhase);
             PlayCard = new DelegateCommand<ICard>(PlayACard);
-            Attack = new DelegateCommand<MonsterCardModel>(AttackOpponent);
-            AttackTarget = new DelegateCommand<MonsterCardModel>(AttackOpponentCard);
+            Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
+            AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
         }
 
         #region Properties
@@ -100,8 +101,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
         public ObservableCollection<ICard> PlayerHand { get => Player.Hand; }
         public ObservableCollection<ICard> OpponentHand { get => Opponent.Hand; }
 
-        public ObservableCollection<MonsterCardModel> PlayerMonsterCards { get => Player.PlayedMonsterCards; }
-        public ObservableCollection<MonsterCardModel> OpponentMonsterCards { get => Opponent.PlayedMonsterCards; }
+        public ObservableCollection<IMonsterCard> PlayerMonsterCards { get => Player.PlayedMonsterCards; }
+        public ObservableCollection<IMonsterCard> OpponentMonsterCards { get => Opponent.PlayedMonsterCards; }
 
 
         public ObservableCollection<ICard> PlayerMagicAndTrapCards { get => Player.PlayedMagicAndTrapCards; }
@@ -279,7 +280,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        public MonsterCardModel? AttackingMonsterCard
+        public IMonsterCard? AttackingMonsterCard
         {
             get => _attackingMonsterCard;
             set
@@ -445,7 +446,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
         //TODO: should the duielist model handle this logic, or should it be handled in the duel mat view model/duel mat model, or split between the two?
-        private void AttackOpponent(MonsterCardModel card)
+        private void AttackOpponent(IMonsterCard card)
         {
             if(PlayerBattlePhase)
             {
@@ -465,7 +466,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private void AttackOpponentCard(MonsterCardModel cardToAttack)
+        private void AttackOpponentCard(IMonsterCard cardToAttack)
         {
             if (CanAttackTarget)
             {
@@ -492,10 +493,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private void AttackPlayer(object parameter)
+        private void AttackPlayer(IMonsterCard card)
         {
-            if (parameter is MonsterCardModel == false) return;
-            MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster
             if (card.CanAttack)
             {
                 if (Player.PlayedMonsterCards.Count == 0)
@@ -511,7 +510,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private void AttackPlayerCard(MonsterCardModel cardToAttack)
+        private void AttackPlayerCard(IMonsterCard cardToAttack)
         {
             if (AttackingMonsterCard == null) return;
             if (AttackingMonsterCard.Attack > cardToAttack.Attack)

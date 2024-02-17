@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Yu_Gi_Oh_Game.Model
 {
-    public enum CardType
+    public enum MonsterMode
     {
-        Monster,
-        EffectMonster,
-        FlipEffectMonster,
-        Magic,
-        Trap,
+        Attack,
+        Defense,
     }
 }

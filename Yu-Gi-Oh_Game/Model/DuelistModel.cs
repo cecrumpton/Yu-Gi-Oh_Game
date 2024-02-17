@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Yu_Gi_Oh_Game.Model.MagicCards;
+using Yu_Gi_Oh_Game.Model.MonsterCards;
 using Yu_Gi_Oh_Game.ViewModel;
 
 namespace Yu_Gi_Oh_Game.Model
@@ -31,7 +32,7 @@ namespace Yu_Gi_Oh_Game.Model
             Deck = deckModel.Deck;
             CardsLeft = Deck.Count - 1;
             Hand = new ObservableCollection<ICard>();
-            PlayedMonsterCards = new ObservableCollection<MonsterCardModel>();
+            PlayedMonsterCards = new ObservableCollection<IMonsterCard>();
             PlayedMagicAndTrapCards = new ObservableCollection<ICard>();
         }
 
@@ -55,7 +56,7 @@ namespace Yu_Gi_Oh_Game.Model
         public ObservableCollection<ICard> Hand { get; set; }
 
         //TODO: make an IMonsterCard that inherits ICard
-        public ObservableCollection<MonsterCardModel> PlayedMonsterCards { get; }
+        public ObservableCollection<IMonsterCard> PlayedMonsterCards { get; }
 
         public ObservableCollection<ICard> PlayedMagicAndTrapCards { get; }
 
@@ -160,7 +161,7 @@ namespace Yu_Gi_Oh_Game.Model
             {
                 if (CanNormalSummonMonster == false) return;
                 Hand.Remove(card);
-                PlayedMonsterCards.Add((MonsterCardModel)card);
+                PlayedMonsterCards.Add((IMonsterCard)card);
                 CanNormalSummonMonster = false;
             }
             if (card.YuGiOhCardType == CardType.Magic)
@@ -176,7 +177,7 @@ namespace Yu_Gi_Oh_Game.Model
         }
 
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
-        public void AttackOpponent(MonsterCardModel monsterCard, int opponentLifePoints)
+        public void AttackOpponent(IMonsterCard monsterCard, int opponentLifePoints)
         {
             //if (parameter is MonsterCardModel == false) return;
             //MonsterCardModel card = (MonsterCardModel)parameter; //this cast shouldn't be necessary, should use the property to check if it is a monster

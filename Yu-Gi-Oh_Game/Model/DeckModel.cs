@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Yu_Gi_Oh_Game.Model.MagicCards;
+using Yu_Gi_Oh_Game.Model.MonsterCards;
 
 namespace Yu_Gi_Oh_Game.Model
 {
@@ -19,25 +20,25 @@ namespace Yu_Gi_Oh_Game.Model
 
         private void CreateCards()
         {
-            MonsterCardModel LusterDragon = new MonsterCardModel("Luster Dragon", 1900, 1600);
+            NormalMonsterCardModel LusterDragon = new NormalMonsterCardModel("Luster Dragon", 1900, 1600);
 
-            MonsterCardModel GeminiElf = new MonsterCardModel("Gemini Elf", 1900, 900);
+            NormalMonsterCardModel GeminiElf = new NormalMonsterCardModel("Gemini Elf", 1900, 900);
 
-            MonsterCardModel VorseRaider = new MonsterCardModel("Vorse Raider", 1900, 1200);
+            NormalMonsterCardModel VorseRaider = new NormalMonsterCardModel("Vorse Raider", 1900, 1200);
 
-            MonsterCardModel DarkMagician = new MonsterCardModel("Dark Magician", 2500, 2100);
+            NormalMonsterCardModel DarkMagician = new NormalMonsterCardModel("Dark Magician", 2500, 2100);
 
-            MonsterCardModel RedEyesBlackDragon = new MonsterCardModel("Red Eyes Black Dragon", 2400, 2000);
+            NormalMonsterCardModel RedEyesBlackDragon = new NormalMonsterCardModel("Red Eyes Black Dragon", 2400, 2000);
 
-            MonsterCardModel BlueEyesWhiteDragon = new MonsterCardModel("Blue Eyes White Dragon", 3000, 2500);
+            NormalMonsterCardModel BlueEyesWhiteDragon = new NormalMonsterCardModel("Blue Eyes White Dragon", 3000, 2500);
 
-            MonsterCardModel SliferTheSkyDragon = new MonsterCardModel("Slifer The Sky Dragon", 3500, 3500);
+            NormalMonsterCardModel SliferTheSkyDragon = new NormalMonsterCardModel("Slifer The Sky Dragon", 3500, 3500);
 
-            MonsterCardModel ObeliskTheTormentor = new MonsterCardModel("Obelisk The Tormentor", 4000, 4000);
+            NormalMonsterCardModel ObeliskTheTormentor = new NormalMonsterCardModel("Obelisk The Tormentor", 4000, 4000);
 
-            MonsterCardModel TheWingedDragonOfRa = new MonsterCardModel("The Winged Dragon Of Ra", 5000, 5000);
+            NormalMonsterCardModel TheWingedDragonOfRa = new NormalMonsterCardModel("The Winged Dragon Of Ra", 5000, 5000);
 
-            MonsterCardModel DarkMagicianGirl = new MonsterCardModel("Dark Magician Girl", 2000, 1700);
+            NormalMonsterCardModel DarkMagicianGirl = new NormalMonsterCardModel("Dark Magician Girl", 2000, 1700);
 
             MagicCardModel PotOfGreed = new PotOfGreed();
 

@@ -14,7 +14,7 @@ namespace Yu_Gi_Oh_Game.Model.MonsterCards
         public abstract int Attack { get; }
         public abstract int Defense { get; }
         public abstract bool CanAttack { get; set; }
-        public abstract string EffectText { get; set; }
+        public abstract string EffectText { get; }
         public MonsterMode Mode { get; set; }
         public abstract void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent);
 

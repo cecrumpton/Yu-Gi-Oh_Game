@@ -46,7 +46,7 @@ namespace Yu_Gi_Oh_Game.Model.MonsterCards.EffectMonsters
             }
         }
 
-        public override void ResolveEffect() //is it possible a threading issue can happen here?
+        public override void ResolveEffect() //is it possible a threading issue can happen here? This needs to be sorted out when I implement trap cards
         {
             if (_vm.AttackingMonsterCard == this)
             {

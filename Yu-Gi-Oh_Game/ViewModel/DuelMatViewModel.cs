@@ -14,6 +14,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Yu_Gi_Oh_Game.Model;
+using Yu_Gi_Oh_Game.Model.Deck;
+using Yu_Gi_Oh_Game.Model.Duelist;
+using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
 
 namespace Yu_Gi_Oh_Game.ViewModel
@@ -25,18 +28,25 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private bool _canAttackTarget;
         private IMonsterCard _attackingMonsterCard;
         private bool _isAttackDeclared;
+        private readonly ObservableCollection<ICard> _deck;
+        private readonly ObservableCollection<ICard> _hand;
 
         public DuelMatViewModel()
         {
             Player = new DuelistModel(new DeckModel());
             Opponent = new DuelistModel(new OpponentDeckModel());
+            Deck = new ObservableCollection<ICard>(Player.Deck);
+            PlayerHand = new ObservableCollection<ICard>();
+            Player.HandUpdated += Player_HandUpdated;
+            Player.DeckUpdated += Player_DeckUpdated;
+            Player.PlayCardUpdated += Player_PlayCardUpdated;
             Player.PropertyChanged += Player_PropertyChanged;
             Opponent.PropertyChanged += Opponent_PropertyChanged;
 
             Player.ShuffleDeck();
             Opponent.ShuffleDeck();
 
-            Player.Hand.CollectionChanged += new NotifyCollectionChangedEventHandler(HandUpdated);
+            //Player.Hand.CollectionChanged += new NotifyCollectionChangedEventHandler(HandUpdated);
             Player.DrawCard(5);
             Opponent.DrawCard(5);
 
@@ -46,7 +56,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             var turn = random.Next(0, 2);
 
             #if DEBUG
-                turn = 1;
+                turn = 0;
             #endif
 
             if (turn == 0)
@@ -67,6 +77,13 @@ namespace Yu_Gi_Oh_Game.ViewModel
             PlayCard = new DelegateCommand<ICard>(PlayACard);
             Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
             AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
+
+            OpponentDeck = new ObservableCollection<ICard>(Opponent.Deck);
+            OpponentHand = new ObservableCollection<ICard>(Opponent.Hand);
+            PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedMonsterCards);
+            OpponentMonsterCards = new ObservableCollection<IMonsterCard>(Opponent.PlayedMonsterCards);
+            PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedMagicAndTrapCards);
+            OpponentMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Opponent.PlayedMagicAndTrapCards);
         }
 
         #region Properties
@@ -98,18 +115,20 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        public List<ICard> Deck { get => Player.Deck; }
-        public List<ICard> OpponentDeck { get => Opponent.Deck; }
-
-        public ObservableCollection<ICard> PlayerHand { get => Player.Hand; }
-        public ObservableCollection<ICard> OpponentHand { get => Opponent.Hand; }
-
-        public ObservableCollection<IMonsterCard> PlayerMonsterCards { get => Player.PlayedMonsterCards; }
-        public ObservableCollection<IMonsterCard> OpponentMonsterCards { get => Opponent.PlayedMonsterCards; }
-
-
-        public ObservableCollection<ICard> PlayerMagicAndTrapCards { get => Player.PlayedMagicAndTrapCards; }
-        public ObservableCollection<ICard> OpponentMagicAndTrapCards { get => Opponent.PlayedMagicAndTrapCards; }
+        public ObservableCollection<ICard> Deck { get; }
+        public ObservableCollection<ICard> OpponentDeck { get; }
+        public ObservableCollection<ICard> PlayerHand { get; }
+        //{
+        //    get
+        //    {
+        //        return new ObservableCollection<ICard>(Player.Hand); //specific events will modify the observable collection so that this won't have to be new'ed up every time
+        //    }
+        //}
+        public ObservableCollection<ICard> OpponentHand { get; }
+        public ObservableCollection<IMonsterCard> PlayerMonsterCards { get ; }
+        public ObservableCollection<IMonsterCard> OpponentMonsterCards { get; }
+        public ObservableCollection<IMagicTrapCard> PlayerMagicAndTrapCards { get; }
+        public ObservableCollection<IMagicTrapCard> OpponentMagicAndTrapCards { get; }
 
         public bool IsPlayerTurn
         {
@@ -293,7 +312,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        public bool IsAttackDeclared
+        public bool IsAttackDeclared //This is currently used for Dark Elf, but can also be used for trap card activation
         {
             get => _isAttackDeclared;
             set
@@ -393,22 +412,22 @@ namespace Yu_Gi_Oh_Game.ViewModel
             ExecuteAIOpponent();
         }
 
-        private void HandUpdated(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                var hand = (ObservableCollection<ICard>)sender;
-                if(hand[hand.Count -1].YuGiOhCardType == CardType.Monster)
-                {
-                    var card = (IMonsterCard)hand[hand.Count - 1];
-                    if(card.MonsterType == MonsterCardType.Effect)
-                    {
-                        var newCard = (EffectMonsterCardModel)card;
-                        newCard.InitializeCardEffect(Player, this, Opponent);
-                    }
-                }
-            }
-        }
+        //private void HandUpdated(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    if (e.Action == NotifyCollectionChangedAction.Add)
+        //    {
+        //        var hand = (ObservableCollection<ICard>)sender;
+        //        if(hand[hand.Count -1].YuGiOhCardType == CardType.Monster)
+        //        {
+        //            var card = (IMonsterCard)hand[hand.Count - 1];
+        //            if(card.MonsterType == MonsterCardType.Effect)
+        //            {
+        //                var newCard = (EffectMonsterCardModel)card;
+        //                newCard.InitializeCardEffect(Player, this, Opponent);
+        //            }
+        //        }
+        //    }
+        //}
 
         private async void ExecuteAIOpponent()
         {
@@ -482,7 +501,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             {
                 if (card.CanAttack)
                 {
-                    if (Opponent.PlayedMonsterCards.Count == 0)
+                    if (Opponent.PlayedMonsterCards.Count() == 0)
                     {
                         AttackingMonsterCard = card;
                         IsAttackDeclared = true;
@@ -508,18 +527,18 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 IsAttackDeclared = true;
                 if (AttackingMonsterCard.Attack > cardToAttack.Attack)
                 {
-                    Opponent.PlayedMonsterCards.Remove(cardToAttack);
+                    OpponentMonsterCards.Remove(cardToAttack);
                     OpponentLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
                 }
                 if (AttackingMonsterCard.Attack < cardToAttack.Attack)
                 {
-                    Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                    PlayerMonsterCards.Remove(AttackingMonsterCard);
                     PlayerLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
                 }
                 if (AttackingMonsterCard.Attack == cardToAttack.Attack)
                 {
-                    Player.PlayedMonsterCards.Remove(AttackingMonsterCard);
-                    Opponent.PlayedMonsterCards.Remove(cardToAttack);
+                    PlayerMonsterCards.Remove(AttackingMonsterCard);
+                    OpponentMonsterCards.Remove(cardToAttack);
                 }
 
                 AttackingMonsterCard.CanAttack = false;
@@ -533,7 +552,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         {
             if (card.CanAttack)
             {
-                if (Player.PlayedMonsterCards.Count == 0)
+                if (Player.PlayedMonsterCards.Count() == 0)
                 {
                     PlayerLifePoints = PlayerLifePoints - card.Attack;
                     card.CanAttack = false;
@@ -541,7 +560,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 else
                 {
                     AttackingMonsterCard = card;
-                    AttackPlayerCard(Player.PlayedMonsterCards[0]);
+                    AttackPlayerCard(PlayerMonsterCards[0]);
                 }
             }
         }
@@ -551,18 +570,18 @@ namespace Yu_Gi_Oh_Game.ViewModel
             if (AttackingMonsterCard == null) return;
             if (AttackingMonsterCard.Attack > cardToAttack.Attack)
             {
-                Player.PlayedMonsterCards.Remove(cardToAttack);
+                PlayerMonsterCards.Remove(cardToAttack);
                 PlayerLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
             }
             if (AttackingMonsterCard.Attack < cardToAttack.Attack)
             {
-                Opponent.PlayedMonsterCards.Remove(AttackingMonsterCard);
+                OpponentMonsterCards.Remove(AttackingMonsterCard);
                 OpponentLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
             }
             if (AttackingMonsterCard.Attack == cardToAttack.Attack)
             {
-                Opponent.PlayedMonsterCards.Remove(AttackingMonsterCard);
-                Player.PlayedMonsterCards.Remove(cardToAttack);
+                OpponentMonsterCards.Remove(AttackingMonsterCard);
+                PlayerMonsterCards.Remove(cardToAttack);
             }
 
             AttackingMonsterCard.CanAttack = false;
@@ -581,7 +600,53 @@ namespace Yu_Gi_Oh_Game.ViewModel
             OnPropertyChanged(nameof(PlayerEndPhase));
             OnPropertyChanged(nameof(PlayerLifePoints));
             OnPropertyChanged(nameof(PlayerMonsterCards));
+            //OnPropertyChanged(nameof(Deck)); //Specific events will be used which will add or remove cards appropriately
         }
+
+        private void Player_HandUpdated(object? sender, HandEventArgs e)
+        {
+            if (e.Action == HandAction.Add)
+            {
+                PlayerHand.Add(e.Card);
+            }
+            else
+            {
+                PlayerHand.Remove(e.Card); //todo: this won't tecnically remove the card, just the first instance of it
+            }
+        }
+
+        private void Player_DeckUpdated(object? sender, DeckEventArgs e)
+        {
+            if (e.Action == DeckAction.Remove)
+            {
+                Deck.RemoveAt(Player.CardsLeft-1);
+            }
+            else if (e.Action == DeckAction.Shuffle) //TODO: there's gotta ba a better way to not clear and re-create the deck...
+            {
+                Deck.Clear();
+                foreach (var card in Player.Deck)
+                    Deck.Add(card);
+            }
+        }
+
+        private async void Player_PlayCardUpdated(object? sender, PlayCardEventArgs e)
+        {
+            if (e.Card.YuGiOhCardType == CardType.Monster)
+            {
+                if (e.Card is not IMonsterCard card) return;
+                PlayerMonsterCards.Add(card);
+            }
+            else if (e.Card.YuGiOhCardType == CardType.Magic)
+            {
+                if (e.Card is not IMagicTrapCard card) return;
+                PlayerMagicAndTrapCards.Add(card);
+                await Task.Delay(2000);
+                card.ResolveEffect(Player, this, Opponent);
+                if (card.IsContinuous == false)
+                    PlayerMagicAndTrapCards.Remove(card);
+            }
+        }
+
         private void Opponent_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(OpponentDrawPhase));

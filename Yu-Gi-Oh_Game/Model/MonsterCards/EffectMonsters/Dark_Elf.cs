@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Yu_Gi_Oh_Game.Model.Duelist;
 using Yu_Gi_Oh_Game.View;
 using Yu_Gi_Oh_Game.ViewModel;
 

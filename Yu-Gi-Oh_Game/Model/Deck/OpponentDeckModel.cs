@@ -4,20 +4,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Yu_Gi_Oh_Game.Model.Duelist;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
 
-namespace Yu_Gi_Oh_Game.Model
+namespace Yu_Gi_Oh_Game.Model.Deck
 {
     public class OpponentDeckModel : IDeckModel
     {
+        private readonly List<ICard> _deck;
+
         public OpponentDeckModel()
         {
-            Deck = new List<ICard>();
+            _deck = new List<ICard>();
             CreateCards();
         }
 
-        public List<ICard> Deck { get; }
+        public IEnumerable<ICard> Deck { get => _deck; }
+        public int CardsLeft { get => Deck.Count(); }
+
+        public event EventHandler<DeckEventArgs> DeckUpdated;
+
+        private void OnDeckUpdated(IEnumerable<ICard> deck, DeckAction action)
+        {
+            DeckUpdated?.Invoke(this, new DeckEventArgs(deck, action));
+        }
+
+        public void Shuffle()
+        {
+            for (int n = Deck.Count() - 1; n > 0; --n)
+            {
+                int r = Random.Shared.Next(n + 1);
+                (_deck[r], _deck[n]) = (_deck[n], _deck[r]);
+            }
+            OnDeckUpdated(Deck, DeckAction.Shuffle);
+        }
 
         private void CreateCards()
         {
@@ -42,16 +63,16 @@ namespace Yu_Gi_Oh_Game.Model
             NormalMonsterCardModel DarkMagicianGirl = new NormalMonsterCardModel("Dark Magician Girl", 2000, 1700);
 
 
-            Deck.Add(LusterDragon);
-            Deck.Add(GeminiElf);
-            Deck.Add(VorseRaider);
-            Deck.Add(DarkMagician);
-            Deck.Add(RedEyesBlackDragon);
-            Deck.Add(BlueEyesWhiteDragon);
-            Deck.Add(SliferTheSkyDragon);
-            Deck.Add(ObeliskTheTormentor);
-            Deck.Add(TheWingedDragonOfRa);
-            Deck.Add(DarkMagicianGirl);
+            _deck.Add(LusterDragon);
+            _deck.Add(GeminiElf);
+            _deck.Add(VorseRaider);
+            _deck.Add(DarkMagician);
+            _deck.Add(RedEyesBlackDragon);
+            _deck.Add(BlueEyesWhiteDragon);
+            _deck.Add(SliferTheSkyDragon);
+            _deck.Add(ObeliskTheTormentor);
+            _deck.Add(TheWingedDragonOfRa);
+            _deck.Add(DarkMagicianGirl);
         }
     }
 }

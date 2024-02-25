@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yu_Gi_Oh_Game.Model
+namespace Yu_Gi_Oh_Game.Model.Duelist
 {
-    public interface IDeckModel
+    public enum HandAction
     {
-        public List<ICard> Deck { get; }
+        Add,
+        Remove
     }
 }

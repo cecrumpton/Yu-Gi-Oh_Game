@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Input;
 using Yu_Gi_Oh_Game.Model.Deck;
 using Yu_Gi_Oh_Game.Model.Hand;
 using Yu_Gi_Oh_Game.Model.MagicCards;
@@ -45,9 +39,9 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             _playedMagicAndTrapCards = new List<IMagicTrapCard>();
         }
 
-        public event EventHandler<HandEventArgs> HandUpdated;
-        public event EventHandler<DeckEventArgs> DeckUpdated;
-        public event EventHandler<PlayedCardEventArgs> PlayCardUpdated;
+        //public event EventHandler<HandEventArgs> HandUpdated;
+        //public event EventHandler<DeckEventArgs> DeckUpdated;
+        //public event EventHandler<PlayedCardEventArgs> PlayCardUpdated;
 
         #region properties
 
@@ -144,56 +138,56 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
 
         #region methods
 
+        //public void DrawCards(int numberOfCards)
+        //{
+        //    for (int i = 0; i < numberOfCards; i++)
+        //    {
+        //        if (CardsLeft <= 0) return; //at some point make this to where the player loses the game
+        //        var newCard = _deck[CardsLeft - 1];
+        //        _hand.Add(newCard);
+        //        _deck.RemoveAt(CardsLeft - 1); //instead of modifying deck here, should call a method that modifys the deck in the deck class (aka it needs its on dra property)
+        //        OnHandUpdated(newCard, HandAction.Add);
+        //        OnDeckUpdated(DeckAction.Remove);
+        //    }
+        //}
+
+        //public void ShuffleDeck() //TODO this should go in the deck model
+        //{
+        //    for (int n = CardsLeft - 1; n > 0; --n)
+        //    {
+        //        int r = Random.Shared.Next(n + 1);
+        //        (_deck[r], _deck[n]) = (_deck[n], _deck[r]);
+        //    }
+        //    OnDeckUpdated(DeckAction.Shuffle);
+        //}
+
+        ////when implementing chains I can remove the await and async out of this method.
+        //public void PlayACard(ICard card, DuelMatViewModel vm, DuelistModel opponent)
+        //{
+        //    if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count() < 5)
+        //    {
+        //        if (CanNormalSummonMonster == false) return;
+        //        _hand.Remove(card);
+        //        _playedMonsterCards.Add((IMonsterCard)card);
+        //        CanNormalSummonMonster = false;
+        //        OnPlayCardUpdated(card, PlayedCardAction.AddMonster);
+        //    }
+        //    if (card.YuGiOhCardType == CardType.Magic)
+        //    {
+        //        _hand.Remove(card);
+        //        _playedMagicAndTrapCards.Add((IMagicTrapCard)card);
+        //        //the duelist model shouldn't be resolving the effect of the card (or really anything else below this line)
+        //        //await Task.Delay(2000);
+        //        //card.ResolveEffect(this, vm, opponent);
+        //        //if (card.IsContinuous == false)
+        //        //    PlayedMagicAndTrapCards.Remove(magicCard);
+        //        OnPlayCardUpdated(card, PlayedCardAction.AddMagicTrap);
+        //    }
+        //    OnHandUpdated(card, HandAction.Remove);
+        //    //OnPropertyChanged(); // NotifyCardRemovedFromHand and NotifyCardAddedToPlayedCards (this can be separated between monsters and traps)
+        //}
+
         public void DrawCards(int numberOfCards)
-        {
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                if (CardsLeft <= 0) return; //at some point make this to where the player loses the game
-                var newCard = _deck[CardsLeft - 1];
-                _hand.Add(newCard);
-                _deck.RemoveAt(CardsLeft - 1); //instead of modifying deck here, should call a method that modifys the deck in the deck class (aka it needs its on dra property)
-                OnHandUpdated(newCard, HandAction.Add);
-                OnDeckUpdated(DeckAction.Remove);
-            }
-        }
-
-        public void ShuffleDeck() //TODO this should go in the deck model
-        {
-            for (int n = CardsLeft - 1; n > 0; --n)
-            {
-                int r = Random.Shared.Next(n + 1);
-                (_deck[r], _deck[n]) = (_deck[n], _deck[r]);
-            }
-            OnDeckUpdated(DeckAction.Shuffle);
-        }
-
-        //when implementing chains I can remove the await and async out of this method.
-        public void PlayACard(ICard card, DuelMatViewModel vm, DuelistModel opponent)
-        {
-            if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count() < 5)
-            {
-                if (CanNormalSummonMonster == false) return;
-                _hand.Remove(card);
-                _playedMonsterCards.Add((IMonsterCard)card);
-                CanNormalSummonMonster = false;
-                OnPlayCardUpdated(card, PlayedCardAction.AddMonster);
-            }
-            if (card.YuGiOhCardType == CardType.Magic)
-            {
-                _hand.Remove(card);
-                _playedMagicAndTrapCards.Add((IMagicTrapCard)card);
-                //the duelist model shouldn't be resolving the effect of the card (or really anything else below this line)
-                //await Task.Delay(2000);
-                //card.ResolveEffect(this, vm, opponent);
-                //if (card.IsContinuous == false)
-                //    PlayedMagicAndTrapCards.Remove(magicCard);
-                OnPlayCardUpdated(card, PlayedCardAction.AddMagicTrap);
-            }
-            OnHandUpdated(card, HandAction.Remove);
-            //OnPropertyChanged(); // NotifyCardRemovedFromHand and NotifyCardAddedToPlayedCards (this can be separated between monsters and traps)
-        }
-
-        public void DrawCards2(int numberOfCards)
         {
             for (int i = 0; i < numberOfCards; i++)
             {
@@ -207,13 +201,13 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             }
         }
 
-        public void ShuffleDeck2() //TODO this should go in the deck model
+        public void ShuffleDeck() //TODO this should go in the deck model
         {
             DeckModel.Shuffle();
         }
 
         //when implementing chains I can remove the await and async out of this method.
-        public void PlayACard2(ICard card, DuelMatViewModel vm, DuelistModel opponent)
+        public void PlayACard(ICard card, DuelMatViewModel vm, DuelistModel opponent)
         {
             if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count() < 5)
             {
@@ -273,20 +267,20 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         //    }
         //}
 
-        private void OnHandUpdated(ICard card, HandAction action)
-        {
-            HandUpdated?.Invoke(this, new HandEventArgs(card, action));
-        }
+        //private void OnHandUpdated(ICard card, HandAction action)
+        //{
+        //    HandUpdated?.Invoke(this, new HandEventArgs(card, action));
+        //}
 
-        private void OnDeckUpdated(DeckAction action)
-        {
-            DeckUpdated?.Invoke(this, new DeckEventArgs(action));
-        }
+        //private void OnDeckUpdated(DeckAction action)
+        //{
+        //    DeckUpdated?.Invoke(this, new DeckEventArgs(action));
+        //}
 
-        private void OnPlayCardUpdated(ICard card, PlayedCardAction action)
-        {
-            PlayCardUpdated?.Invoke(this, new PlayedCardEventArgs(card, action));
-        }
+        //private void OnPlayCardUpdated(ICard card, PlayedCardAction action)
+        //{
+        //    PlayCardUpdated?.Invoke(this, new PlayedCardEventArgs(card, action));
+        //}
 
         #endregion
 

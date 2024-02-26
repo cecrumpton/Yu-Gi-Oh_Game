@@ -17,6 +17,7 @@ namespace Yu_Gi_Oh_Game.Model.PlayedCards
         public PlayedCardsModel()
         {
             _playedMonsterCards = new List<IMonsterCard>();
+            _playedMagicTrapCards = new List<IMagicTrapCard>();
         }
 
         public event EventHandler<PlayedCardEventArgs> PlayedCardUpdated;

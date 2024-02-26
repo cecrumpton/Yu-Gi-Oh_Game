@@ -37,24 +37,27 @@ namespace Yu_Gi_Oh_Game.ViewModel
         {
             Player = new DuelistModel(new DeckModel(), new HandModel(), new PlayedCardsModel());
             Opponent = new DuelistModel(new OpponentDeckModel(), new HandModel(), new PlayedCardsModel());
-            //Deck = new ObservableCollection<ICard>(Player.Deck);
-            Deck = new ObservableCollection<ICard>(Player.DeckModel.Deck);
-            //PlayerHand = new ObservableCollection<ICard>();
+            
             PlayerHand = new ObservableCollection<ICard>(Player.HandModel.Hand);
+            PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedCardsModel.PlayedMonsterCards);
+            PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedCardsModel.PlayedMagicTrapCards);
+
+            OpponentHand = new ObservableCollection<ICard>(Opponent.HandModel.Hand);
+            OpponentMonsterCards = new ObservableCollection<IMonsterCard>(Opponent.PlayedCardsModel.PlayedMonsterCards);
+            OpponentMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Opponent.PlayedCardsModel.PlayedMagicTrapCards);
+
             Player.HandModel.HandUpdated += Player_HandUpdated;
-            //Player.DeckModel.DeckUpdated += Player_DeckUpdated; //this really doesn't get used 
             Player.PlayedCardsModel.PlayedCardUpdated += Player_PlayCardUpdated;
-            Player.HandUpdated += Player_HandUpdated;
-            Player.DeckUpdated += Player_DeckUpdated;
-            Player.PlayCardUpdated += Player_PlayCardUpdated;
             Player.PropertyChanged += Player_PropertyChanged;
+
+            Opponent.HandModel.HandUpdated += Opponent_HandUpdated;
+            Opponent.PlayedCardsModel.PlayedCardUpdated += Opponent_PlayCardUpdated;
             Opponent.PropertyChanged += Opponent_PropertyChanged;
 
-            Player.ShuffleDeck2();
+            Player.ShuffleDeck();
             Opponent.ShuffleDeck();
 
-            //Player.Hand.CollectionChanged += new NotifyCollectionChangedEventHandler(HandUpdated);
-            Player.DrawCards2(5);
+            Player.DrawCards(5);
             Opponent.DrawCards(5);
 
             PlayerLifePoints = OpponentLifePoints = 8000;
@@ -63,7 +66,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             var turn = random.Next(0, 2);
 
             #if DEBUG
-                turn = 0;
+                turn = 1;
             #endif
 
             if (turn == 0)
@@ -84,13 +87,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             PlayCard = new DelegateCommand<ICard>(PlayACard);
             Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
             AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
-
-            OpponentDeck = new ObservableCollection<ICard>(Opponent.Deck);
-            OpponentHand = new ObservableCollection<ICard>(Opponent.Hand);
-            PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedMonsterCards);
-            OpponentMonsterCards = new ObservableCollection<IMonsterCard>(Opponent.PlayedMonsterCards);
-            PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedMagicAndTrapCards);
-            OpponentMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Opponent.PlayedMagicAndTrapCards);
         }
 
         #region Properties
@@ -125,12 +121,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
         public ObservableCollection<ICard> Deck { get; }
         public ObservableCollection<ICard> OpponentDeck { get; }
         public ObservableCollection<ICard> PlayerHand { get; }
-        //{
-        //    get
-        //    {
-        //        return new ObservableCollection<ICard>(Player.Hand); //specific events will modify the observable collection so that this won't have to be new'ed up every time
-        //    }
-        //}
         public ObservableCollection<ICard> OpponentHand { get; }
         public ObservableCollection<IMonsterCard> PlayerMonsterCards { get ; }
         public ObservableCollection<IMonsterCard> OpponentMonsterCards { get; }
@@ -369,7 +359,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private async void ExecuteDrawAndStandbyPhase(DuelistModel duelist)
         {
-            duelist.DrawCards2(1);
+            duelist.DrawCards(1);
             duelist.IsDrawPhase = false;
             duelist.IsStandbyPhase = true;
             await Task.Delay(2000);
@@ -419,31 +409,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
             ExecuteAIOpponent();
         }
 
-        //private void HandUpdated(object sender, NotifyCollectionChangedEventArgs e)
-        //{
-        //    if (e.Action == NotifyCollectionChangedAction.Add)
-        //    {
-        //        var hand = (ObservableCollection<ICard>)sender;
-        //        if(hand[hand.Count -1].YuGiOhCardType == CardType.Monster)
-        //        {
-        //            var card = (IMonsterCard)hand[hand.Count - 1];
-        //            if(card.MonsterType == MonsterCardType.Effect)
-        //            {
-        //                var newCard = (EffectMonsterCardModel)card;
-        //                newCard.InitializeCardEffect(Player, this, Opponent);
-        //            }
-        //        }
-        //    }
-        //}
-
         private async void ExecuteAIOpponent()
         {
             //AI Logic begins here, this will eventually need to be removed
             if (Opponent.CardsLeft < 0) return; //at some point make this to where the opponent loses the game
             await Task.Delay(2000);
-            //DrawCards(1, false);
             Opponent.DrawCards(1);
-            //DrawCards(Opponent, 1);
             await Task.Delay(2000);
             OpponentDrawPhase = false;
             OpponentStandbyPhase = true;
@@ -508,7 +479,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             {
                 if (card.CanAttack)
                 {
-                    if (Opponent.PlayedMonsterCards.Count() == 0)
+                    if (OpponentMonsterCards.Count() == 0)
                     {
                         AttackingMonsterCard = card;
                         IsAttackDeclared = true;
@@ -534,18 +505,18 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 IsAttackDeclared = true;
                 if (AttackingMonsterCard.Attack > cardToAttack.Attack)
                 {
-                    OpponentMonsterCards.Remove(cardToAttack);
+                    Opponent.PlayedCardsModel.RemoveMonsterCard(cardToAttack);
                     OpponentLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
                 }
                 if (AttackingMonsterCard.Attack < cardToAttack.Attack)
                 {
-                    PlayerMonsterCards.Remove(AttackingMonsterCard);
+                    Player.PlayedCardsModel.RemoveMonsterCard(AttackingMonsterCard);
                     PlayerLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
                 }
                 if (AttackingMonsterCard.Attack == cardToAttack.Attack)
                 {
-                    PlayerMonsterCards.Remove(AttackingMonsterCard);
-                    OpponentMonsterCards.Remove(cardToAttack);
+                    Player.PlayedCardsModel.RemoveMonsterCard(AttackingMonsterCard);
+                    Opponent.PlayedCardsModel.RemoveMonsterCard(cardToAttack);
                 }
 
                 AttackingMonsterCard.CanAttack = false;
@@ -559,7 +530,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         {
             if (card.CanAttack)
             {
-                if (Player.PlayedMonsterCards.Count() == 0)
+                if (PlayerMonsterCards.Count() == 0)
                 {
                     PlayerLifePoints = PlayerLifePoints - card.Attack;
                     card.CanAttack = false;
@@ -577,25 +548,24 @@ namespace Yu_Gi_Oh_Game.ViewModel
             if (AttackingMonsterCard == null) return;
             if (AttackingMonsterCard.Attack > cardToAttack.Attack)
             {
-                PlayerMonsterCards.Remove(cardToAttack);
+                Player.PlayedCardsModel.RemoveMonsterCard(cardToAttack);
                 PlayerLifePoints -= (AttackingMonsterCard.Attack - cardToAttack.Attack);
             }
             if (AttackingMonsterCard.Attack < cardToAttack.Attack)
             {
-                OpponentMonsterCards.Remove(AttackingMonsterCard);
+                Opponent.PlayedCardsModel.RemoveMonsterCard(AttackingMonsterCard);
                 OpponentLifePoints -= (cardToAttack.Attack - AttackingMonsterCard.Attack);
             }
             if (AttackingMonsterCard.Attack == cardToAttack.Attack)
             {
-                OpponentMonsterCards.Remove(AttackingMonsterCard);
-                PlayerMonsterCards.Remove(cardToAttack);
+                Opponent.PlayedCardsModel.RemoveMonsterCard(AttackingMonsterCard);
+                Player.PlayedCardsModel.RemoveMonsterCard(cardToAttack);
             }
 
             AttackingMonsterCard.CanAttack = false;
             AttackingMonsterCard = null;
             CanAttackTarget = false;
         }
-
 
         private void Player_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -607,7 +577,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             OnPropertyChanged(nameof(PlayerEndPhase));
             OnPropertyChanged(nameof(PlayerLifePoints));
             OnPropertyChanged(nameof(PlayerMonsterCards));
-            //OnPropertyChanged(nameof(Deck)); //Specific events will be used which will add or remove cards appropriately
         }
 
         private void Player_HandUpdated(object? sender, HandEventArgs e)
@@ -622,26 +591,15 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private void Player_DeckUpdated(object? sender, DeckEventArgs e)
-        {
-            if (e.Action == DeckAction.Remove)
-            {
-                Deck.RemoveAt(Player.CardsLeft-1);
-            }
-            else if (e.Action == DeckAction.Shuffle) //TODO: there's gotta ba a better way to not clear and re-create the deck...
-            {
-                Deck.Clear();
-                foreach (var card in Player.Deck)
-                    Deck.Add(card);
-            }
-        }
-
         private async void Player_PlayCardUpdated(object? sender, PlayedCardEventArgs e)
         {
             if (e.Card.YuGiOhCardType == CardType.Monster)
             {
                 if (e.Card is not IMonsterCard card) return;
-                PlayerMonsterCards.Add(card);
+                if (e.Action == PlayedCardAction.AddMonster)
+                    PlayerMonsterCards.Add(card);
+                if (e.Action == PlayedCardAction.RemoveMonster)
+                    PlayerMonsterCards.Remove(card);
             }
             else if (e.Card.YuGiOhCardType == CardType.Magic)
             {
@@ -651,6 +609,35 @@ namespace Yu_Gi_Oh_Game.ViewModel
                 card.ResolveEffect(Player, this, Opponent);
                 if (card.IsContinuous == false)
                     PlayerMagicAndTrapCards.Remove(card);
+            }
+        }
+
+        private void Opponent_HandUpdated(object? sender, HandEventArgs e)
+        {
+            if (e.Action == HandAction.Add)
+                OpponentHand.Add(e.Card);
+            else
+                OpponentHand.Remove(e.Card); //todo: this won't tecnically remove the card, just the first instance of it
+        }
+
+        private async void Opponent_PlayCardUpdated(object? sender, PlayedCardEventArgs e)
+        {
+            if (e.Card.YuGiOhCardType == CardType.Monster)
+            {
+                if (e.Card is not IMonsterCard card) return;
+                if(e.Action == PlayedCardAction.AddMonster)
+                    OpponentMonsterCards.Add(card);
+                if (e.Action == PlayedCardAction.RemoveMonster)
+                    OpponentMonsterCards.Remove(card);
+            }
+            else if (e.Card.YuGiOhCardType == CardType.Magic)
+            {
+                if (e.Card is not IMagicTrapCard card) return;
+                OpponentMagicAndTrapCards.Add(card);
+                await Task.Delay(2000);
+                card.ResolveEffect(Player, this, Opponent);
+                if (card.IsContinuous == false)
+                    OpponentMagicAndTrapCards.Remove(card);
             }
         }
 

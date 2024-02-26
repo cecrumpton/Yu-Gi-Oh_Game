@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Yu_Gi_Oh_Game.Model.Deck;
+using Yu_Gi_Oh_Game.Model.Hand;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
+using Yu_Gi_Oh_Game.Model.PlayedCards;
 using Yu_Gi_Oh_Game.ViewModel;
 
 namespace Yu_Gi_Oh_Game.Model.Duelist
@@ -32,8 +34,11 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         private bool _isEndPhase;
         private bool _canNormalSummonMonster;
 
-        public DuelistModel(IDeckModel deckModel)
+        public DuelistModel(IDeckModel deckModel, IHandModel handModel, IPlayedCardsModel playedCardsModel)
         {
+            DeckModel = deckModel;
+            HandModel = handModel;
+            PlayedCardsModel = playedCardsModel;
             _deck = deckModel.Deck.ToList();
             _hand = new List<ICard>();
             _playedMonsterCards = new List<IMonsterCard>();
@@ -41,28 +46,14 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         }
 
         public event EventHandler<HandEventArgs> HandUpdated;
-
-        private void OnHandUpdated(ICard card, HandAction action)
-        {
-            HandUpdated?.Invoke(this, new HandEventArgs(card, action));
-        }
-
         public event EventHandler<DeckEventArgs> DeckUpdated;
-
-        private void OnDeckUpdated(IEnumerable<ICard> deck, DeckAction action)
-        {
-            DeckUpdated?.Invoke(this, new DeckEventArgs(deck, action));
-        }
-
-        public event EventHandler<PlayCardEventArgs> PlayCardUpdated;
-
-        private void OnPlayCardUpdated(ICard card)
-        {
-            PlayCardUpdated?.Invoke(this, new PlayCardEventArgs(card));
-        }
+        public event EventHandler<PlayedCardEventArgs> PlayCardUpdated;
 
         #region properties
 
+        public IDeckModel DeckModel { get; }
+        public IHandModel HandModel { get; }
+        public IPlayedCardsModel PlayedCardsModel { get; }
         public IEnumerable<ICard> Deck { get => _deck; }
         public IEnumerable<ICard> Hand { get => _hand; }
         public IEnumerable<IMonsterCard> PlayedMonsterCards { get => _playedMonsterCards; }
@@ -153,7 +144,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
 
         #region methods
 
-        public void DrawCard(int numberOfCards)
+        public void DrawCards(int numberOfCards)
         {
             for (int i = 0; i < numberOfCards; i++)
             {
@@ -162,7 +153,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
                 _hand.Add(newCard);
                 _deck.RemoveAt(CardsLeft - 1); //instead of modifying deck here, should call a method that modifys the deck in the deck class (aka it needs its on dra property)
                 OnHandUpdated(newCard, HandAction.Add);
-                OnDeckUpdated(Deck, DeckAction.Remove);
+                OnDeckUpdated(DeckAction.Remove);
             }
         }
 
@@ -173,7 +164,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
                 int r = Random.Shared.Next(n + 1);
                 (_deck[r], _deck[n]) = (_deck[n], _deck[r]);
             }
-            OnDeckUpdated(Deck, DeckAction.Shuffle);
+            OnDeckUpdated(DeckAction.Shuffle);
         }
 
         //when implementing chains I can remove the await and async out of this method.
@@ -185,6 +176,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
                 _hand.Remove(card);
                 _playedMonsterCards.Add((IMonsterCard)card);
                 CanNormalSummonMonster = false;
+                OnPlayCardUpdated(card, PlayedCardAction.AddMonster);
             }
             if (card.YuGiOhCardType == CardType.Magic)
             {
@@ -195,9 +187,53 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
                 //card.ResolveEffect(this, vm, opponent);
                 //if (card.IsContinuous == false)
                 //    PlayedMagicAndTrapCards.Remove(magicCard);
+                OnPlayCardUpdated(card, PlayedCardAction.AddMagicTrap);
             }
             OnHandUpdated(card, HandAction.Remove);
-            OnPlayCardUpdated(card);
+            //OnPropertyChanged(); // NotifyCardRemovedFromHand and NotifyCardAddedToPlayedCards (this can be separated between monsters and traps)
+        }
+
+        public void DrawCards2(int numberOfCards)
+        {
+            for (int i = 0; i < numberOfCards; i++)
+            {
+                if (DeckModel.CardsLeft <= 0) return; //at some point make this to where the player loses the game
+                var topCardIndex = DeckModel.CardsLeft - 1;
+                var newCard = DeckModel.GetCard(topCardIndex);
+                HandModel.AddCard(newCard);
+                DeckModel.RemoveCard(topCardIndex);
+                //OnHandUpdated(newCard, HandAction.Add); //This will be removed
+                //OnDeckUpdated(DeckAction.Remove);
+            }
+        }
+
+        public void ShuffleDeck2() //TODO this should go in the deck model
+        {
+            DeckModel.Shuffle();
+        }
+
+        //when implementing chains I can remove the await and async out of this method.
+        public void PlayACard2(ICard card, DuelMatViewModel vm, DuelistModel opponent)
+        {
+            if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count() < 5)
+            {
+                if (CanNormalSummonMonster == false) return;
+                HandModel.RemoveCard(card);
+                PlayedCardsModel.AddMonsterCard((IMonsterCard)card);
+                CanNormalSummonMonster = false;
+            }
+            if (card.YuGiOhCardType == CardType.Magic)
+            {
+                HandModel.RemoveCard(card);
+                PlayedCardsModel.AddMagicTrapCard((IMagicTrapCard)card);
+                //the duelist model shouldn't be resolving the effect of the card (or really anything else below this line)
+                //await Task.Delay(2000);
+                //card.ResolveEffect(this, vm, opponent);
+                //if (card.IsContinuous == false)
+                //    PlayedMagicAndTrapCards.Remove(magicCard);
+            }
+            //OnHandUpdated(card, HandAction.Remove);
+            //OnPlayCardUpdated(card, PlayedCardAction.Add);
             //OnPropertyChanged(); // NotifyCardRemovedFromHand and NotifyCardAddedToPlayedCards (this can be separated between monsters and traps)
         }
 
@@ -236,8 +272,23 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         //        card.CanAttack = false;
         //    }
         //}
-        #endregion
 
+        private void OnHandUpdated(ICard card, HandAction action)
+        {
+            HandUpdated?.Invoke(this, new HandEventArgs(card, action));
+        }
+
+        private void OnDeckUpdated(DeckAction action)
+        {
+            DeckUpdated?.Invoke(this, new DeckEventArgs(action));
+        }
+
+        private void OnPlayCardUpdated(ICard card, PlayedCardAction action)
+        {
+            PlayCardUpdated?.Invoke(this, new PlayedCardEventArgs(card, action));
+        }
+
+        #endregion
 
         #region implement INotifyPropertyChanged
 

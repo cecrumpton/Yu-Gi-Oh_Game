@@ -17,7 +17,7 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public bool IsContinuous => false;
         public void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent)
         {
-            duelist.DrawCard(2);
+            duelist.DrawCards2(2);
         }
     }
 }

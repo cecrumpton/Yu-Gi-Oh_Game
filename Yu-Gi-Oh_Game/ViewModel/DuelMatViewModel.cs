@@ -16,8 +16,10 @@ using System.Windows.Media;
 using Yu_Gi_Oh_Game.Model;
 using Yu_Gi_Oh_Game.Model.Deck;
 using Yu_Gi_Oh_Game.Model.Duelist;
+using Yu_Gi_Oh_Game.Model.Hand;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
+using Yu_Gi_Oh_Game.Model.PlayedCards;
 
 namespace Yu_Gi_Oh_Game.ViewModel
 {
@@ -33,22 +35,27 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public DuelMatViewModel()
         {
-            Player = new DuelistModel(new DeckModel());
-            Opponent = new DuelistModel(new OpponentDeckModel());
-            Deck = new ObservableCollection<ICard>(Player.Deck);
-            PlayerHand = new ObservableCollection<ICard>();
+            Player = new DuelistModel(new DeckModel(), new HandModel(), new PlayedCardsModel());
+            Opponent = new DuelistModel(new OpponentDeckModel(), new HandModel(), new PlayedCardsModel());
+            //Deck = new ObservableCollection<ICard>(Player.Deck);
+            Deck = new ObservableCollection<ICard>(Player.DeckModel.Deck);
+            //PlayerHand = new ObservableCollection<ICard>();
+            PlayerHand = new ObservableCollection<ICard>(Player.HandModel.Hand);
+            Player.HandModel.HandUpdated += Player_HandUpdated;
+            //Player.DeckModel.DeckUpdated += Player_DeckUpdated; //this really doesn't get used 
+            Player.PlayedCardsModel.PlayedCardUpdated += Player_PlayCardUpdated;
             Player.HandUpdated += Player_HandUpdated;
             Player.DeckUpdated += Player_DeckUpdated;
             Player.PlayCardUpdated += Player_PlayCardUpdated;
             Player.PropertyChanged += Player_PropertyChanged;
             Opponent.PropertyChanged += Opponent_PropertyChanged;
 
-            Player.ShuffleDeck();
+            Player.ShuffleDeck2();
             Opponent.ShuffleDeck();
 
             //Player.Hand.CollectionChanged += new NotifyCollectionChangedEventHandler(HandUpdated);
-            Player.DrawCard(5);
-            Opponent.DrawCard(5);
+            Player.DrawCards2(5);
+            Opponent.DrawCards(5);
 
             PlayerLifePoints = OpponentLifePoints = 8000;
 
@@ -362,7 +369,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         private async void ExecuteDrawAndStandbyPhase(DuelistModel duelist)
         {
-            duelist.DrawCard(1);
+            duelist.DrawCards2(1);
             duelist.IsDrawPhase = false;
             duelist.IsStandbyPhase = true;
             await Task.Delay(2000);
@@ -435,7 +442,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             if (Opponent.CardsLeft < 0) return; //at some point make this to where the opponent loses the game
             await Task.Delay(2000);
             //DrawCards(1, false);
-            Opponent.DrawCard(1);
+            Opponent.DrawCards(1);
             //DrawCards(Opponent, 1);
             await Task.Delay(2000);
             OpponentDrawPhase = false;
@@ -629,7 +636,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
-        private async void Player_PlayCardUpdated(object? sender, PlayCardEventArgs e)
+        private async void Player_PlayCardUpdated(object? sender, PlayedCardEventArgs e)
         {
             if (e.Card.YuGiOhCardType == CardType.Monster)
             {

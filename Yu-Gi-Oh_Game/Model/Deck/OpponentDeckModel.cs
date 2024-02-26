@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using Yu_Gi_Oh_Game.Model.Duelist;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
 
@@ -25,9 +24,9 @@ namespace Yu_Gi_Oh_Game.Model.Deck
 
         public event EventHandler<DeckEventArgs> DeckUpdated;
 
-        private void OnDeckUpdated(IEnumerable<ICard> deck, DeckAction action)
+        private void OnDeckUpdated(DeckAction action)
         {
-            DeckUpdated?.Invoke(this, new DeckEventArgs(deck, action));
+            DeckUpdated?.Invoke(this, new DeckEventArgs(action));
         }
 
         public void Shuffle()
@@ -37,7 +36,24 @@ namespace Yu_Gi_Oh_Game.Model.Deck
                 int r = Random.Shared.Next(n + 1);
                 (_deck[r], _deck[n]) = (_deck[n], _deck[r]);
             }
-            OnDeckUpdated(Deck, DeckAction.Shuffle);
+            OnDeckUpdated(DeckAction.Shuffle);
+        }
+
+        public void AddCards(IEnumerable<ICard> cards)
+        {
+            _deck.AddRange(cards);
+            OnDeckUpdated(DeckAction.Add);
+        }
+
+        public void RemoveCard(int index)
+        {
+            _deck.RemoveAt(index);
+            OnDeckUpdated(DeckAction.Remove);
+        }
+
+        public ICard GetCard(int index)
+        {
+            return _deck[index];
         }
 
         private void CreateCards()

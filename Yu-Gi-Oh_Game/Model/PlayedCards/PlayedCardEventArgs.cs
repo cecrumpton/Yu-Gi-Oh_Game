@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yu_Gi_Oh_Game.Model.Duelist
+namespace Yu_Gi_Oh_Game.Model.PlayedCards
 {
-    public class HandEventArgs : EventArgs
+    public class PlayedCardEventArgs : EventArgs
     {
         public ICard Card { get; }
-        public HandAction Action { get; }
-
-        public HandEventArgs(ICard card, HandAction action)
+        public PlayedCardAction Action { get; }
+        public PlayedCardEventArgs(ICard card, PlayedCardAction action)
         {
             Card = card;
             Action = action;

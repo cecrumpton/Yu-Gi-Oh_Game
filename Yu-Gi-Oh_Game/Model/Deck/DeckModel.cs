@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Yu_Gi_Oh_Game.Model.Duelist;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards.EffectMonsters;
@@ -21,38 +20,52 @@ namespace Yu_Gi_Oh_Game.Model.Deck
             CreateCards();
         }
 
-        public IEnumerable<ICard> Deck { get => _deck; }
-        public int CardsLeft { get => Deck.Count(); }
-
         public event EventHandler<DeckEventArgs> DeckUpdated;
 
-        private void OnDeckUpdated(IEnumerable<ICard> deck, DeckAction action)
-        {
-            DeckUpdated?.Invoke(this, new DeckEventArgs(deck, action));
-        }
+        public IEnumerable<ICard> Deck { get => _deck; } //It is possible I may be able to encapsulate this too
+        public int CardsLeft { get => Deck.Count(); }
 
         public void Shuffle()
         {
-            for (int n = Deck.Count() - 1; n > 0; --n)
+            for (int n = CardsLeft - 1; n > 0; --n)
             {
                 int r = Random.Shared.Next(n + 1);
                 (_deck[r], _deck[n]) = (_deck[n], _deck[r]);
             }
-            OnDeckUpdated(Deck, DeckAction.Shuffle);
+            OnDeckUpdated(DeckAction.Shuffle);
         }
 
-        public void DrawCard(int numberOfCards)
+        //TODO: this only adds them at the end (which is essentially the top of the deck), it needs an optional parameter to tell what location in the IEnumerable the cards need to go
+        public void AddCards(IEnumerable<ICard> cards)
         {
-            for (int i = 0; i < numberOfCards; i++)
-            {
-                //if (CardsLeft <= 0) return; //at some point make this to where the player loses the game
-                //var newCard = _deck[CardsLeft - 1];
-                //_hand.Add(newCard);
-                _deck.RemoveAt(CardsLeft - 1); //instead of modifying deck here, should call a method that modifys the deck in the deck class (aka it needs its on dra property)
-                //OnHandUpdated(newCard, HandAction.Add);
-                OnDeckUpdated(Deck, DeckAction.Remove);
-            }
+            _deck.AddRange(cards);
+            OnDeckUpdated(DeckAction.Add);
         }
+
+        public void RemoveCard(int index) 
+        {
+            _deck.RemoveAt(index);
+            OnDeckUpdated(DeckAction.Remove);
+        }
+
+        public ICard GetCard(int index)
+        {
+            return _deck[index];
+        }
+
+        //public IEnumerable<ICard> DrawCard(int numberOfCards)
+        //{
+        //    List<ICard> cards = new List<ICard>();
+        //    for (int i = 0; i < numberOfCards; i++)
+        //    {
+        //        if (CardsLeft <= 0) break; //at some point make this to where the player loses the game
+        //        var newCard = _deck[CardsLeft - 1];
+        //        cards.Add(newCard);
+        //        _deck.RemoveAt(CardsLeft - 1);
+        //        OnDeckUpdated(DeckAction.Remove);
+        //    }
+        //    return cards;
+        //}
 
         private void CreateCards()
         {
@@ -94,6 +107,11 @@ namespace Yu_Gi_Oh_Game.Model.Deck
             _deck.Add(DarkMagicianGirl);
             _deck.Add(PotOfGreed);
             _deck.Add(Ookazi);
+        }
+
+        private void OnDeckUpdated(DeckAction action)
+        {
+            DeckUpdated?.Invoke(this, new DeckEventArgs(action));
         }
     }
 }

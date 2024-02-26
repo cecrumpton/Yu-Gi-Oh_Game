@@ -12,8 +12,4 @@
     <PackageReference Include="Prism.Core" Version="8.1.97" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Model\Hand\" />
-  </ItemGroup>
-
 </Project>

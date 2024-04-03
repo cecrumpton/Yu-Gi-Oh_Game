@@ -23,6 +23,7 @@ using Yu_Gi_Oh_Game.Model.PlayedCards;
 
 namespace Yu_Gi_Oh_Game.ViewModel
 {
+    //TODO's involve making a graveyard model and figuring out ho to handle attacks
     public class DuelMatViewModel : INotifyPropertyChanged
     {
         private string _advancePhaseText;

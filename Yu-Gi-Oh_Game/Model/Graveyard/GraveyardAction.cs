@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yu_Gi_Oh_Game.Model
+namespace Yu_Gi_Oh_Game.Model.Graveyard
 {
-    public interface IDeckModel
+    public enum GraveyardAction
     {
-        public List<ICard> Deck { get; }
+        Add,
+        Remove
     }
 }

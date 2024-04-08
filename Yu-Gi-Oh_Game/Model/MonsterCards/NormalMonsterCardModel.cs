@@ -4,16 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yu_Gi_Oh_Game.Model
+namespace Yu_Gi_Oh_Game.Model.MonsterCards
 {
-    public class MonsterCardModel : ICard
+    public class NormalMonsterCardModel : IMonsterCard
     {
         public CardType YuGiOhCardType => CardType.Monster;
+        public MonsterCardType MonsterType => MonsterCardType.Normal;
         public string Name { get; }
         public int Attack { get; }
         public int Defense { get; }
         public bool CanAttack { get; set; }
-        public MonsterCardModel(string name, int attack, int defense)
+        public MonsterMode Mode { get; set; }
+
+        public NormalMonsterCardModel(string name, int attack, int defense)
         {
             Name = name;
             Attack = attack;

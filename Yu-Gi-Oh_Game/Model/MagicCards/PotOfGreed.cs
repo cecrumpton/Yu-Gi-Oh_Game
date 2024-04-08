@@ -15,7 +15,7 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public string Name => "Pot of Greed";
         public string Description => "Draw 2 cards.";
         public bool IsContinuous => false;
-        public void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent)
+        public void ResolveEffect(DuelistModel duelist, DuelistModel opponent)
         {
             duelist.DrawCards(2);
         }

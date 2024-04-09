@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Yu_Gi_Oh_Game.View
 {
     /// <summary>
-    /// Interaction logic for MagicTrapLayer.xaml
+    /// Interaction logic for OpponentMagicTrapLayer.xaml
     /// </summary>
-    public partial class MagicTrapLayer : UserControl
+    public partial class OpponentMagicTrapLayer : UserControl
     {
-        public MagicTrapLayer()
+        public OpponentMagicTrapLayer()
         {
             InitializeComponent();
         }

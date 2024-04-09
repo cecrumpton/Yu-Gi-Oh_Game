@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="Yu_Gi_Oh_Game.View.DuelPhasesLayer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Yu_Gi_Oh_Game.View" 
+             xmlns:viewmodel="clr-namespace:Yu_Gi_Oh_Game.ViewModel"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=viewmodel:DuelMatViewModel}">
+    <Grid Background="Lime">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Background="Pink" Command="{Binding ViewOpponentBanishedMonsters}">
+            <TextBlock Text="Opponent Banished Monsters" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
+        </Button>
+        <Label Grid.Column="1" Content="{Binding PlayerLifePoints}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Label Grid.Column="2" Content="Draw Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PlayerDrawPhase}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding OpponentDrawPhase}" Value="True">
+                            <Setter Property="Background" Value="Purple"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label Grid.Column="3" Content="Standby Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PlayerStandbyPhase}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding OpponentStandbyPhase}" Value="True">
+                            <Setter Property="Background" Value="Purple"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label Grid.Column="4" Content="Main Phase 1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PlayerMainPhase1}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding OpponentMainPhase1}" Value="True">
+                            <Setter Property="Background" Value="Purple"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label Grid.Column="5" Content="Battle Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PlayerBattlePhase}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding OpponentBattlePhase}" Value="True">
+                            <Setter Property="Background" Value="Purple"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label Grid.Column="6" Content="MainPhase 2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PlayerMainPhase2}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding OpponentMainPhase2}" Value="True">
+                            <Setter Property="Background" Value="Purple"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label Grid.Column="7" Content="End Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding PlayerEndPhase}" Value="True">
+                            <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding OpponentEndPhase}" Value="True">
+                            <Setter Property="Background" Value="Purple"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+        <Label Grid.Column="8" Content="{Binding OpponentLifePoints}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Grid.Column="9" Background="Pink" Command="{Binding ViewBanishedMonsters}">
+            <TextBlock Text="Player Banished Monsters" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
+        </Button>
+    </Grid>
+</UserControl>

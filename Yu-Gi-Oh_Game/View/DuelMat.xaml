@@ -205,7 +205,9 @@
         
         <!--#region Player Magic/Traps-->
 
-        <Grid Grid.Row="5" Background="Blue">
+        <local:MagicTrapLayer Grid.Row="5"/>
+
+        <!--<Grid Grid.Row="5" Background="Blue">
             <ItemsControl ItemsSource="{Binding PlayerMagicAndTrapCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -214,7 +216,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Margin="5,0"><!--Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">-->
+                        <Button Margin="5,0">--><!--Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">--><!--
                             <StackPanel Orientation="Vertical">
                                 <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                                 <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
@@ -224,13 +226,13 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </Grid>
+        </Grid>-->
 
         <!--#endregion-->
         
         <!--#region Hand-->
-        
-        <Grid Grid.Row="6" Background="Purple">
+        <local:PlayerHandLayer Grid.Row="6"/>
+        <!--<Grid Grid.Row="6" Background="Purple">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="8*"/>
@@ -257,7 +259,7 @@
             <Button Grid.Column="2" Background="Pink" Command="{Binding AdvancePhase}">
                 <TextBlock Text="{Binding AdvancePhaseText}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
             </Button>
-        </Grid>
+        </Grid>-->
         
         <!--#endregion-->
     </Grid>

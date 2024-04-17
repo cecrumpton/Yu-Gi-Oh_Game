@@ -24,7 +24,7 @@
         <Button Grid.Column="0" Background="Pink" Command="{Binding ViewOpponentBanishedMonsters}">
             <TextBlock Text="Opponent Banished Monsters" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
         </Button>
-        <Label Grid.Column="1" Content="{Binding PlayerLifePoints}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Label Grid.Column="1" Content="{Binding PlayerLifePointsDisplay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Label Grid.Column="2" Content="Draw Phase" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Label.Style>
                 <Style TargetType="Label">
@@ -109,7 +109,7 @@
                 </Style>
             </Label.Style>
         </Label>
-        <Label Grid.Column="8" Content="{Binding OpponentLifePoints}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Label Grid.Column="8" Content="{Binding OpponentLifePointsDisplay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Button Grid.Column="9" Background="Pink" Command="{Binding ViewBanishedMonsters}">
             <TextBlock Text="Player Banished Monsters" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
         </Button>

@@ -14,6 +14,6 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public string Name { get; }
         public string Description { get; }
         public bool IsContinuous { get; }
-        public void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent);
+        public void ResolveEffect(DuelistModel duelist, DuelistModel opponent);
     }
 }

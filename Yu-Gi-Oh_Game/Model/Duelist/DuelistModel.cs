@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Yu_Gi_Oh_Game.Model.Deck;
+using Yu_Gi_Oh_Game.Model.Graveyard;
 using Yu_Gi_Oh_Game.Model.Hand;
 using Yu_Gi_Oh_Game.Model.MagicCards;
 using Yu_Gi_Oh_Game.Model.MonsterCards;
@@ -28,11 +29,13 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         private bool _isEndPhase;
         private bool _canNormalSummonMonster;
 
-        public DuelistModel(IDeckModel deckModel, IHandModel handModel, IPlayedCardsModel playedCardsModel)
+        public DuelistModel(IDeckModel deckModel, IHandModel handModel, IPlayedCardsModel playedCardsModel, IGraveyardModel graveyardModel)
         {
             DeckModel = deckModel;
             HandModel = handModel;
             PlayedCardsModel = playedCardsModel;
+            GraveyardModel = graveyardModel;
+            LifePoints = 8000;
             _deck = deckModel.Deck.ToList();
             _hand = new List<ICard>();
             _playedMonsterCards = new List<IMonsterCard>();
@@ -48,6 +51,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         public IDeckModel DeckModel { get; }
         public IHandModel HandModel { get; }
         public IPlayedCardsModel PlayedCardsModel { get; }
+        public IGraveyardModel GraveyardModel { get; }
         public IEnumerable<ICard> Deck { get => _deck; }
         public IEnumerable<ICard> Hand { get => _hand; }
         public IEnumerable<IMonsterCard> PlayedMonsterCards { get => _playedMonsterCards; }
@@ -207,7 +211,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
         }
 
         //when implementing chains I can remove the await and async out of this method.
-        public void PlayACard(ICard card, DuelMatViewModel vm, DuelistModel opponent)
+        public void PlayACard(ICard card, DuelistModel opponent)
         {
             if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count() < 5)
             {

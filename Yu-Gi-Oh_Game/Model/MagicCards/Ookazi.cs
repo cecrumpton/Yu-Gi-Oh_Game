@@ -14,12 +14,8 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
         public string Name => "Ookazi";
         public string Description => "Inflict 800 points of direct damage to your opponent's life points.";
         public bool IsContinuous => false;
-        public void ResolveEffect(DuelistModel duelist, DuelMatViewModel vm, DuelistModel opponent)
+        public void ResolveEffect(DuelistModel duelist, DuelistModel opponent)
         {
-            //if (duelist == vm.Player)
-            //    vm.OpponentLifePoints -= 800;
-            //else
-            //    vm.PlayerLifePoints -= 800;
             opponent.LifePoints -= 800;
         }
     }

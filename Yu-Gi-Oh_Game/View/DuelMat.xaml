@@ -20,8 +20,10 @@
         </Grid.RowDefinitions>
         
         <!--#region Opponent Hand-->
-        
-        <Grid Grid.Row="0" Background="Red">
+
+        <local:OpponentHandLayer Grid.Row="0"/>
+
+        <!--<Grid Grid.Row="0" Background="Red">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="8*"/>
@@ -35,26 +37,34 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <!--<Button Margin="5,0" Command="{Binding DataContext.PlayCard, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">-->
+                        --><!--<Button Margin="5,0" Command="{Binding DataContext.PlayCard, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">--><!--
                             <StackPanel Margin="5,0" Orientation="Vertical">
                                 <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                                 <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                                 <TextBlock Text="{Binding Defense}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                             </StackPanel>
-                        <!--</Button>-->
+                        --><!--</Button>--><!--
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <!--<Button Grid.Column="2" Background="Pink" Command="{Binding AdvancePhase}">
+            --><!--<Button Grid.Column="2" Background="Pink" Command="{Binding AdvancePhase}">
                 <TextBlock Text="{Binding AdvancePhaseText}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
-            </Button>-->
-        </Grid>
+            </Button>--><!--
+        </Grid>-->
         
         <!--#endregion-->
 
-        <Grid Grid.Row="1" Background="Orange"/>
-        
-        <Grid Grid.Row="2" Background="Yellow">
+        <!--#region Player Magic/Traps-->
+
+        <local:OpponentMagicTrapLayer Grid.Row="1"/>
+
+        <!--#endregion-->
+
+        <!--#region Player Monsters-->
+
+        <local:OpponentMonsterLayer Grid.Row="2"/>
+
+        <!--<Grid Grid.Row="2" Background="Yellow">
             <ItemsControl ItemsSource="{Binding OpponentMonsterCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -73,11 +83,15 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </Grid>
+        </Grid>-->
+        
+        <!--#endregion-->
 
         <!--#region Duel Phases-->
-        
-        <Grid Grid.Row="3" Background="Lime">
+
+        <local:DuelPhasesLayer Grid.Row="3"/>
+
+        <!--<Grid Grid.Row="3" Background="Lime">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -174,13 +188,14 @@
                 </Label.Style>
             </Label>
             <Label Grid.Column="7" Content="{Binding OpponentLifePointsDisplay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Grid>
+        </Grid>-->
 
         <!--#endregion-->
 
         <!--#region Player Monsters-->
 
-        <Grid Grid.Row="4" Background="Green">
+        <local:PlayerMonsterLayer Grid.Row="4"/>
+        <!--<Grid Grid.Row="4" Background="Green">
             <ItemsControl ItemsSource="{Binding PlayerMonsterCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -202,13 +217,15 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </Grid>
+        </Grid>-->
 
         <!--#endregion-->
         
         <!--#region Player Magic/Traps-->
 
-        <Grid Grid.Row="5" Background="Blue">
+        <local:PlayerMagicTrapLayer Grid.Row="5"/>
+
+        <!--<Grid Grid.Row="5" Background="Blue">
             <ItemsControl ItemsSource="{Binding PlayerMagicAndTrapCards}" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -217,7 +234,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Margin="5,0"><!--Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">-->
+                        <Button Margin="5,0">--><!--Command="{Binding DataContext.Attack, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">--><!--
                             <StackPanel Orientation="Vertical">
                                 <TextBlock Text="{Binding Name}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
                                 <TextBlock Text="{Binding Attack}" Background="DarkSeaGreen" Foreground="Aquamarine"/>
@@ -227,13 +244,13 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </Grid>
+        </Grid>-->
 
         <!--#endregion-->
         
         <!--#region Hand-->
-        
-        <Grid Grid.Row="6" Background="Purple">
+        <local:PlayerHandLayer Grid.Row="6"/>
+        <!--<Grid Grid.Row="6" Background="Purple">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="8*"/>
@@ -260,7 +277,7 @@
             <Button Grid.Column="2" Background="Pink" Command="{Binding AdvancePhase}">
                 <TextBlock Text="{Binding AdvancePhaseText}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"/>
             </Button>
-        </Grid>
+        </Grid>-->
         
         <!--#endregion-->
     </Grid>

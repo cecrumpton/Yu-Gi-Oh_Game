@@ -63,6 +63,9 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _lifePoints;
             set
             {
+                if (_lifePoints == value) return;
+                if (value <= 0)
+                    value = 0;
                 _lifePoints = value;
                 OnPropertyChanged();
             }
@@ -73,6 +76,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _isDrawPhase;
             set
             {
+                if (_isDrawPhase == value) return;
                 _isDrawPhase = value;
                 OnPropertyChanged();
             }
@@ -83,6 +87,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _isStandbyPhase;
             set
             {
+                if (_isStandbyPhase == value) return;
                 _isStandbyPhase = value;
                 OnPropertyChanged();
             }
@@ -93,6 +98,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _isMainPhase1;
             set
             {
+                if (_isMainPhase1 == value) return;
                 _isMainPhase1 = value;
                 OnPropertyChanged();
             }
@@ -103,6 +109,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _isBattlePhase;
             set
             {
+                if (_isBattlePhase == value) return;
                 _isBattlePhase = value;
                 OnPropertyChanged();
             }
@@ -113,6 +120,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _isMainPhase2;
             set
             {
+                if (_isMainPhase2 == value) return;
                 _isMainPhase2 = value;
                 OnPropertyChanged();
             }
@@ -123,6 +131,7 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             get => _isEndPhase;
             set
             {
+                if (_isEndPhase == value) return;
                 _isEndPhase = value;
                 OnPropertyChanged();
             }
@@ -218,12 +227,14 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
                 if (CanNormalSummonMonster == false) return;
                 HandModel.RemoveCard(card);
                 PlayedCardsModel.AddMonsterCard((IMonsterCard)card);
+                _playedMonsterCards.Add((IMonsterCard)card);
                 CanNormalSummonMonster = false;
             }
             if (card.YuGiOhCardType == CardType.Magic)
             {
                 HandModel.RemoveCard(card);
                 PlayedCardsModel.AddMagicTrapCard((IMagicTrapCard)card);
+                _playedMagicAndTrapCards.Add((IMagicTrapCard)card);
                 //the duelist model shouldn't be resolving the effect of the card (or really anything else below this line)
                 //await Task.Delay(2000);
                 //card.ResolveEffect(this, vm, opponent);

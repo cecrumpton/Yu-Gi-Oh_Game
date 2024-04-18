@@ -66,7 +66,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             var turn = random.Next(0, 2);
 
             #if DEBUG
-                turn = 0;
+                turn = 1;
             #endif
 
             if (turn == 0)
@@ -309,6 +309,29 @@ namespace Yu_Gi_Oh_Game.ViewModel
             }
         }
 
+        public bool PlayerWins
+        {
+            get 
+            {
+                bool win = Opponent.LifePoints <= 0;
+                if (win)
+                    EndGame();
+                return win;
+            }
+        }
+
+        //Note that if opponent wins the game will still have the ai complete MP2 and EndPhase
+        public bool OpponentWins
+        {
+            get
+            {
+                bool win = Player.LifePoints <= 0;
+                if (win)
+                    EndGame();
+                return win;
+            }
+        }
+
         public bool IsAttackDeclared //This is currently used for Dark Elf, but can also be used for trap card activation
         {
             get => _isAttackDeclared;
@@ -326,6 +349,13 @@ namespace Yu_Gi_Oh_Game.ViewModel
         #endregion
 
         #region PrivateMethods
+
+        //Note that if opponent wins the game will still have the ai complete MP2 and EndPhase
+        private void EndGame()
+        {
+            Player.IsDrawPhase = Player.IsStandbyPhase = Player.IsMainPhase1 = Player.IsBattlePhase = Player.IsMainPhase2 = Player.IsEndPhase =
+                Opponent.IsDrawPhase = Opponent.IsStandbyPhase = Opponent.IsMainPhase1 = Opponent.IsBattlePhase = Opponent.IsMainPhase2 = Opponent.IsEndPhase = false;
+        }
 
         private void AdvanceTurnPhase()
         {
@@ -405,7 +435,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             await Task.Delay(1000);
             opponent.IsDrawPhase = true;
 
-            //here temporarily uitil logic can be used for both human and ai
+            //here temporarily until logic can be used for both human and ai
             ExecuteAIOpponent();
         }
 
@@ -585,6 +615,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             RaisePropertyChanged(nameof(PlayerEndPhase));
             RaisePropertyChanged(nameof(PlayerLifePointsDisplay));
             RaisePropertyChanged(nameof(PlayerMonsterCards));
+            RaisePropertyChanged(nameof(OpponentWins));
         }
 
         private void Player_HandUpdated(object? sender, HandEventArgs e)
@@ -659,6 +690,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             RaisePropertyChanged(nameof(OpponentEndPhase));
             RaisePropertyChanged(nameof(OpponentLifePointsDisplay));
             RaisePropertyChanged(nameof(OpponentMonsterCards));
+            RaisePropertyChanged(nameof(PlayerWins));
         }
 
         #endregion

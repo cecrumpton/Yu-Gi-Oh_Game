@@ -10,8 +10,6 @@ namespace Yu_Gi_Oh_Game.Model.MagicCards
 {
     public interface IMagicTrapCard : ICard
     {
-        public CardType YuGiOhCardType { get; }
-        public string Name { get; }
         public string Description { get; }
         public bool IsContinuous { get; }
         public void ResolveEffect(DuelistModel duelist, DuelistModel opponent);

@@ -107,6 +107,7 @@ namespace Yu_Gi_Oh_Game.Model.Deck
             _deck.Add(DarkMagicianGirl);
             _deck.Add(PotOfGreed);
             _deck.Add(Ookazi);
+            //_deck.Add(DarkElf);
         }
 
         private void OnDeckUpdated(DeckAction action)

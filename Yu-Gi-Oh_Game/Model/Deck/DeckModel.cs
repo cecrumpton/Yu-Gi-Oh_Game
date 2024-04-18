@@ -71,7 +71,7 @@ namespace Yu_Gi_Oh_Game.Model.Deck
         {
             NormalMonsterCardModel LusterDragon = new NormalMonsterCardModel("Luster Dragon", 1900, 1600);
 
-            Dark_Elf DarkElf = new Dark_Elf();
+            //Dark_Elf DarkElf = new Dark_Elf();
 
             NormalMonsterCardModel GeminiElf = new NormalMonsterCardModel("Gemini Elf", 1900, 900);
 
@@ -87,7 +87,7 @@ namespace Yu_Gi_Oh_Game.Model.Deck
 
             NormalMonsterCardModel ObeliskTheTormentor = new NormalMonsterCardModel("Obelisk The Tormentor", 4000, 4000);
 
-            NormalMonsterCardModel TheWingedDragonOfRa = new NormalMonsterCardModel("The Winged Dragon Of Ra", 50000, 5000);
+            NormalMonsterCardModel TheWingedDragonOfRa = new NormalMonsterCardModel("The Winged Dragon Of Ra", 5000, 5000);
 
             NormalMonsterCardModel DarkMagicianGirl = new NormalMonsterCardModel("Dark Magician Girl", 2000, 1700);
 
@@ -107,7 +107,7 @@ namespace Yu_Gi_Oh_Game.Model.Deck
             _deck.Add(DarkMagicianGirl);
             _deck.Add(PotOfGreed);
             _deck.Add(Ookazi);
-            _deck.Add(DarkElf);
+            //_deck.Add(DarkElf);
         }
 
         private void OnDeckUpdated(DeckAction action)

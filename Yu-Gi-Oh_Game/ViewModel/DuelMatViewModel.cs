@@ -66,7 +66,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             var turn = random.Next(0, 2);
 
             #if DEBUG
-                turn = 1;
+                turn = 0;
             #endif
 
             if (turn == 0)

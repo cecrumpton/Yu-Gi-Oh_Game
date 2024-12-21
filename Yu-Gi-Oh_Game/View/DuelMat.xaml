@@ -19,19 +19,46 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
+        <!--#region Opponent Hand-->
+
         <local:OpponentHandLayer Grid.Row="0"/>
+
+        <!--#endregion-->
+
+        <!--#region Player Magic/Traps-->
 
         <local:OpponentMagicTrapLayer Grid.Row="1"/>
 
+        <!--#endregion-->
+
+        <!--#region Player Monsters-->
+
         <local:OpponentMonsterLayer Grid.Row="2"/>
+
+        <!--#endregion-->
+
+        <!--#region Duel Phases-->
 
         <local:DuelPhasesLayer Grid.Row="3"/>
 
+        <!--#endregion-->
+
+        <!--#region Player Monsters-->
+
         <local:PlayerMonsterLayer Grid.Row="4"/>
+
+        <!--#endregion-->
         
+        <!--#region Player Magic/Traps-->
+
         <local:PlayerMagicTrapLayer Grid.Row="5"/>
-                
+
+        <!--#endregion-->
+        
+        <!--#region Hand-->
+        
         <local:PlayerHandLayer Grid.Row="6"/>
 
+        <!--#endregion-->
     </Grid>
 </UserControl>

@@ -25,13 +25,13 @@
 
         <!--#endregion-->
 
-        <!--#region Player Magic/Traps-->
+        <!--#region Opponent Magic/Traps-->
 
         <local:OpponentMagicTrapLayer Grid.Row="1"/>
 
         <!--#endregion-->
 
-        <!--#region Player Monsters-->
+        <!--#region Opponent Monsters-->
 
         <local:OpponentMonsterLayer Grid.Row="2"/>
 
@@ -55,7 +55,7 @@
 
         <!--#endregion-->
         
-        <!--#region Hand-->
+        <!--#region Player Hand-->
         
         <local:PlayerHandLayer Grid.Row="6"/>
 

@@ -45,7 +45,7 @@
 
         <!--#region Player Monsters-->
 
-        <local:PlayerMonsterLayer Grid.Row="4"/>
+        <local:PlayerMonsterLayer Grid.Row="4" DataContext="{Binding PlayerMonstersViewModel}"/>
 
         <!--#endregion-->
         

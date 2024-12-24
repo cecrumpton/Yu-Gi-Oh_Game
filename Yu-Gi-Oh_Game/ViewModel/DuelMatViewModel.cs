@@ -40,6 +40,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             Opponent = new DuelistModel(new OpponentDeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
 
             PlayerHandViewModel = new PlayerHandViewModel(Player);
+            PlayerMonstersViewModel = new PlayerMonstersViewModel(Player);
 
             PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedCardsModel.PlayedMonsterCards);
             PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedCardsModel.PlayedMagicTrapCards);
@@ -90,7 +91,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         #region Properties
 
         public PlayerHandViewModel PlayerHandViewModel { get; }
-
+        public PlayerMonstersViewModel PlayerMonstersViewModel { get; }
         public DuelistModel Player { get; }
         public DuelistModel Opponent { get; }
         public ICommand AdvancePhase { get; }

@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Yu_Gi_Oh_Game.Mediators;
 using Yu_Gi_Oh_Game.Model;
 using Yu_Gi_Oh_Game.Model.Deck;
 using Yu_Gi_Oh_Game.Model.Duelist;
@@ -37,6 +38,8 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public DuelMatViewModel()
         {
+            PlayerHandViewModel = new PlayerHandViewModel(Mediator);
+
             Player = new DuelistModel(new DeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
             Opponent = new DuelistModel(new OpponentDeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
             
@@ -90,6 +93,9 @@ namespace Yu_Gi_Oh_Game.ViewModel
         }
 
         #region Properties
+
+        public IMediator Mediator { get; } = new DuelMatMediator();
+        public PlayerHandViewModel PlayerHandViewModel { get; }
 
         public DuelistModel Player { get; }
         public DuelistModel Opponent { get; }

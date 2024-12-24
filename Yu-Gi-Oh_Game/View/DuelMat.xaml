@@ -56,8 +56,8 @@
         <!--#endregion-->
         
         <!--#region Player Hand-->
-        
-        <local:PlayerHandLayer Grid.Row="6"/>
+
+        <local:PlayerHandLayer Grid.Row="6" DataContext="{Binding PlayerHandViewModel}"/>
 
         <!--#endregion-->
     </Grid>

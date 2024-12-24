@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Yu_Gi_Oh_Game.Mediators;
 using Yu_Gi_Oh_Game.Model;
 using Yu_Gi_Oh_Game.Model.Deck;
 using Yu_Gi_Oh_Game.Model.Duelist;
@@ -34,16 +33,14 @@ namespace Yu_Gi_Oh_Game.ViewModel
         private IMonsterCard _attackingMonsterCard;
         private bool _isAttackDeclared;
         private readonly ObservableCollection<ICard> _deck;
-        private readonly ObservableCollection<ICard> _hand;
 
         public DuelMatViewModel()
         {
             Player = new DuelistModel(new DeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
             Opponent = new DuelistModel(new OpponentDeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
 
-            PlayerHandViewModel = new PlayerHandViewModel(Mediator, Player);
+            PlayerHandViewModel = new PlayerHandViewModel(Player);
 
-            //PlayerHand = new ObservableCollection<ICard>(Player.HandModel.Hand);
             PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedCardsModel.PlayedMonsterCards);
             PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedCardsModel.PlayedMagicTrapCards);
 
@@ -51,7 +48,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             OpponentMonsterCards = new ObservableCollection<IMonsterCard>(Opponent.PlayedCardsModel.PlayedMonsterCards);
             OpponentMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Opponent.PlayedCardsModel.PlayedMagicTrapCards);
 
-            //Player.HandModel.HandUpdated += Player_HandUpdated;
             Player.PlayedCardsModel.PlayedCardUpdated += Player_PlayCardUpdated;
             Player.PropertyChanged += Player_PropertyChanged;
 
@@ -87,20 +83,17 @@ namespace Yu_Gi_Oh_Game.ViewModel
             _isFirstTurn = true;
 
             AdvancePhase = new DelegateCommand(AdvanceTurnPhase);
-            //PlayCard = new DelegateCommand<ICard>(PlayACard);
             Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
             AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
         }
 
         #region Properties
 
-        public IMediator Mediator { get; } = new DuelMatMediator();
         public PlayerHandViewModel PlayerHandViewModel { get; }
 
         public DuelistModel Player { get; }
         public DuelistModel Opponent { get; }
         public ICommand AdvancePhase { get; }
-        //public ICommand PlayCard { get; }
         public ICommand Attack { get; }
         public ICommand AttackTarget { get; }
 
@@ -126,7 +119,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public ObservableCollection<ICard> Deck { get; }
         public ObservableCollection<ICard> OpponentDeck { get; }
-        //public ObservableCollection<ICard> PlayerHand { get; }
         public ObservableCollection<ICard> OpponentHand { get; }
         public ObservableCollection<IMonsterCard> PlayerMonsterCards { get ; }
         public ObservableCollection<IMonsterCard> OpponentMonsterCards { get; }
@@ -491,14 +483,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             AdvancePhaseText = "Draw";
         }
 
-        //private void PlayACard(ICard card)
-        //{
-        //    if (PlayerMainPhase1 || PlayerMainPhase2)
-        //    {
-        //        Player.PlayACard(card, Opponent);
-        //    }
-        //}
-
         //This is here to handle AI logic
         private void OpponentPlayACard(object parameter)
         {
@@ -623,18 +607,6 @@ namespace Yu_Gi_Oh_Game.ViewModel
             RaisePropertyChanged(nameof(PlayerMonsterCards));
             RaisePropertyChanged(nameof(OpponentWins));
         }
-
-        //private void Player_HandUpdated(object? sender, HandEventArgs e)
-        //{
-        //    if (e.Action == HandAction.Add)
-        //    {
-        //        PlayerHand.Add(e.Card);
-        //    }
-        //    else
-        //    {
-        //        PlayerHand.Remove(e.Card); //todo: this won't tecnically remove the card, just the first instance of it
-        //    }
-        //}
 
         private async void Player_PlayCardUpdated(object? sender, PlayedCardEventArgs e)
         {

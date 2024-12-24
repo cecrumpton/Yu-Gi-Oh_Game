@@ -246,6 +246,24 @@ namespace Yu_Gi_Oh_Game.Model.Duelist
             //OnPropertyChanged(); // NotifyCardRemovedFromHand and NotifyCardAddedToPlayedCards (this can be separated between monsters and traps)
         }
 
+        public void PlayACard(ICard card)
+        {
+            if (card.YuGiOhCardType == CardType.Monster && PlayedMonsterCards.Count() < 5)
+            {
+                if (CanNormalSummonMonster == false) return;
+                HandModel.RemoveCard(card);
+                PlayedCardsModel.AddMonsterCard((IMonsterCard)card);
+                _playedMonsterCards.Add((IMonsterCard)card);
+                CanNormalSummonMonster = false;
+            }
+            if (card.YuGiOhCardType == CardType.Magic)
+            {
+                HandModel.RemoveCard(card);
+                PlayedCardsModel.AddMagicTrapCard((IMagicTrapCard)card);
+                _playedMagicAndTrapCards.Add((IMagicTrapCard)card);
+            }
+        }
+
         //This method likely doesn't belong in the duelist model, it ould be better off in a monster card model
         //TODO: these to methods can be condensed down in to one, similar to the draw cards method
         public void AttackOpponent(IMonsterCard monsterCard, int opponentLifePoints)

@@ -17,6 +17,7 @@ using System.Windows.Media;
 using Yu_Gi_Oh_Game.Model;
 using Yu_Gi_Oh_Game.Model.Deck;
 using Yu_Gi_Oh_Game.Model.Duelist;
+using Yu_Gi_Oh_Game.Model.GameState;
 using Yu_Gi_Oh_Game.Model.Graveyard;
 using Yu_Gi_Oh_Game.Model.Hand;
 using Yu_Gi_Oh_Game.Model.MagicCards;
@@ -39,9 +40,10 @@ namespace Yu_Gi_Oh_Game.ViewModel
             Player = new DuelistModel(new DeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
             Opponent = new DuelistModel(new OpponentDeckModel(), new HandModel(), new PlayedCardsModel(), new GraveyardModel());
 
+            GameState = new GameState(Player, Opponent);
             PlayerHandViewModel = new PlayerHandViewModel(Player);
-            PlayerMonstersViewModel = new PlayerMonstersViewModel(Player);
-            OpponentMonstersViewModel = new OpponentMonstersViewModel(Opponent);
+            PlayerMonstersViewModel = new PlayerMonstersViewModel(Player, GameState);
+            OpponentMonstersViewModel = new OpponentMonstersViewModel(Opponent, GameState);
 
             //PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedCardsModel.PlayedMonsterCards);
             PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedCardsModel.PlayedMagicTrapCards);
@@ -86,11 +88,12 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             AdvancePhase = new DelegateCommand(AdvanceTurnPhase);
             //Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
-            AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
+            //AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
         }
 
         #region Properties
 
+        public GameState GameState { get; }
         public PlayerHandViewModel PlayerHandViewModel { get; }
         public PlayerMonstersViewModel PlayerMonstersViewModel { get; }
         public OpponentMonstersViewModel OpponentMonstersViewModel { get; }
@@ -98,7 +101,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         public DuelistModel Opponent { get; }
         public ICommand AdvancePhase { get; }
         //public ICommand Attack { get; }
-        public ICommand AttackTarget { get; }
+        //public ICommand AttackTarget { get; }
 
         public int PlayerLifePointsDisplay
         {

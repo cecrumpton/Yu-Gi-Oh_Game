@@ -33,7 +33,7 @@
 
         <!--#region Opponent Monsters-->
 
-        <local:OpponentMonsterLayer Grid.Row="2"/>
+        <local:OpponentMonsterLayer Grid.Row="2" DataContext="{Binding OpponentMonstersViewModel}"/>
 
         <!--#endregion-->
 

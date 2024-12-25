@@ -41,8 +41,9 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
             PlayerHandViewModel = new PlayerHandViewModel(Player);
             PlayerMonstersViewModel = new PlayerMonstersViewModel(Player);
+            OpponentMonstersViewModel = new OpponentMonstersViewModel(Opponent);
 
-            PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedCardsModel.PlayedMonsterCards);
+            //PlayerMonsterCards = new ObservableCollection<IMonsterCard>(Player.PlayedCardsModel.PlayedMonsterCards);
             PlayerMagicAndTrapCards = new ObservableCollection<IMagicTrapCard>(Player.PlayedCardsModel.PlayedMagicTrapCards);
 
             OpponentHand = new ObservableCollection<ICard>(Opponent.HandModel.Hand);
@@ -84,7 +85,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
             _isFirstTurn = true;
 
             AdvancePhase = new DelegateCommand(AdvanceTurnPhase);
-            Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
+            //Attack = new DelegateCommand<IMonsterCard>(AttackOpponent);
             AttackTarget = new DelegateCommand<IMonsterCard>(AttackOpponentCard);
         }
 
@@ -92,10 +93,11 @@ namespace Yu_Gi_Oh_Game.ViewModel
 
         public PlayerHandViewModel PlayerHandViewModel { get; }
         public PlayerMonstersViewModel PlayerMonstersViewModel { get; }
+        public OpponentMonstersViewModel OpponentMonstersViewModel { get; }
         public DuelistModel Player { get; }
         public DuelistModel Opponent { get; }
         public ICommand AdvancePhase { get; }
-        public ICommand Attack { get; }
+        //public ICommand Attack { get; }
         public ICommand AttackTarget { get; }
 
         public int PlayerLifePointsDisplay
@@ -121,7 +123,7 @@ namespace Yu_Gi_Oh_Game.ViewModel
         public ObservableCollection<ICard> Deck { get; }
         public ObservableCollection<ICard> OpponentDeck { get; }
         public ObservableCollection<ICard> OpponentHand { get; }
-        public ObservableCollection<IMonsterCard> PlayerMonsterCards { get ; }
+        //public ObservableCollection<IMonsterCard> PlayerMonsterCards { get ; }
         public ObservableCollection<IMonsterCard> OpponentMonsterCards { get; }
         public ObservableCollection<IMagicTrapCard> PlayerMagicAndTrapCards { get; }
         public ObservableCollection<IMagicTrapCard> OpponentMagicAndTrapCards { get; }
@@ -555,15 +557,15 @@ namespace Yu_Gi_Oh_Game.ViewModel
         {
             if (card.CanAttack)
             {
-                if (PlayerMonsterCards.Count() == 0)
+                if (!Player.PlayedCardsModel.PlayedMonsterCards.Any())
                 {
-                    PlayerLifePointsDisplay = PlayerLifePointsDisplay - card.Attack;
+                    PlayerLifePointsDisplay -= card.Attack;
                     card.CanAttack = false;
                 }
                 else
                 {
                     AttackingMonsterCard = card;
-                    AttackPlayerCard(PlayerMonsterCards[0]);
+                    AttackPlayerCard(Player.PlayedCardsModel.PlayedMonsterCards.First());
                 }
             }
         }
@@ -605,21 +607,20 @@ namespace Yu_Gi_Oh_Game.ViewModel
             RaisePropertyChanged(nameof(PlayerMainPhase2));
             RaisePropertyChanged(nameof(PlayerEndPhase));
             RaisePropertyChanged(nameof(PlayerLifePointsDisplay));
-            RaisePropertyChanged(nameof(PlayerMonsterCards));
             RaisePropertyChanged(nameof(OpponentWins));
         }
 
         private async void Player_PlayCardUpdated(object? sender, PlayedCardEventArgs e)
         {
-            if (e.Card.YuGiOhCardType == CardType.Monster)
-            {
-                if (e.Card is not IMonsterCard card) return;
-                if (e.Action == PlayedCardAction.AddMonster)
-                    PlayerMonsterCards.Add(card);
-                if (e.Action == PlayedCardAction.RemoveMonster)
-                    PlayerMonsterCards.Remove(card);
-            }
-            else if (e.Card.YuGiOhCardType == CardType.Magic)
+            //if (e.Card.YuGiOhCardType == CardType.Monster)
+            //{
+            //    if (e.Card is not IMonsterCard card) return;
+            //    if (e.Action == PlayedCardAction.AddMonster)
+            //        PlayerMonsterCards.Add(card);
+            //    if (e.Action == PlayedCardAction.RemoveMonster)
+            //        PlayerMonsterCards.Remove(card);
+            //}
+            if (e.Card.YuGiOhCardType == CardType.Magic)
             {
                 if (e.Card is not IMagicTrapCard card) return;
                 PlayerMagicAndTrapCards.Add(card);
